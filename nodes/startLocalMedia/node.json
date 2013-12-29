@@ -1,0 +1,42 @@
+{
+  "name": "startLocalMedia",
+  "ns": "webrtc",
+  "description": "Start Local Media",
+  "phrases": {
+    "active": "Starting local media"
+  },
+  "ports": {
+    "input": {
+      "webrtc": {
+        "title": "WebRTC",
+        "type": "function",
+        "required": true
+      },
+      "media": {
+        "type": "object",
+        "properties": {
+          "audio": {
+            "title": "Audio?",
+            "type": "boolean",
+            "default": true
+          },
+          "video": {
+            "title": "Video?",
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    },
+    "output": {
+      "err": {
+        "title": "Error",
+        "type": "object"
+      },
+      "stream": {
+        "title": "Stream",
+        "type": "function"
+      }
+    }
+  }
+}

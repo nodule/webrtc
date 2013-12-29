@@ -1,0 +1,23 @@
+{
+  "name": "resumeVideo",
+  "ns": "webrtc",
+  "description": "Resume Video",
+  "phrases": {
+    "active": "Resuming video"
+  },
+  "ports": {
+    "input": {
+      "webrtc": {
+        "title": "WebRTC",
+        "type": "function",
+        "required": true
+      }
+    },
+    "output": {
+      "webrtc": {
+        "title": "WebRTC",
+        "type": "function"
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "nodule-webrtc",
+  "description": "WebRTC for Chiχ",
+  "author": "Rob Halff <rob.halff@gmail.com>",
+  "version": "0.0.2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nodule/webrtc.git"
+  },
+  "engines": {
+    "node": ">=0.6.0"
+  },
+  "main": "x",
+  "scripts": {
+    "test": "chit -r"
+  },
+  "dependencies": {
+    "webrtc": "x.x.x"
+  },
+  "devDependencies": {
+    "chit": "0.x.x"
+  },
+  "chix": {
+    "name": "webrtc",
+    "color": "rgb(25,116,136)"
+  }
+}

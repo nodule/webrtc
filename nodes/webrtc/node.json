@@ -1,0 +1,71 @@
+{
+  "name": "webrtc",
+  "ns": "webrtc",
+  "description": "WebRTC",
+  "phrases": {
+    "active": "Launching WebRTC!"
+  },
+  "require": {
+    "webrtc": "latest"
+  },
+  "ports": {
+    "input": {
+      "debug": {
+        "title": "Debug",
+        "type": "boolean",
+        "default": false
+      },
+      "localVideoEl": {
+        "title": "Local Video Element",
+        "type": "any",
+        "required": true
+      },
+      "remoteVideosEl": {
+        "title": "Remote Videos Element",
+        "type": "any",
+        "required": true
+      },
+      "autoRequestMedia": {
+        "title": "Auto Request Media",
+        "type": "boolean",
+        "default": false
+      },
+      "autoAdjustMic": {
+        "title": "Auto Adjust Microphone",
+        "type": "boolean",
+        "default": false
+      },
+      "media": {
+        "type": "object",
+        "properties": {
+          "audio": {
+            "title": "Audio?",
+            "type": "boolean",
+            "default": true
+          },
+          "video": {
+            "title": "Video?",
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "detectSpeakingEvents": {
+        "title": "Detect Speaking Events",
+        "type": "boolean",
+        "default": true
+      },
+      "enableDataChannels": {
+        "title": "Enable Data Channels",
+        "type": "boolean",
+        "default": true
+      }
+    },
+    "output": {
+      "webrtc": {
+        "title": "WebRTC",
+        "type": "function"
+      }
+    }
+  }
+}

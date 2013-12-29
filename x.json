@@ -1,0 +1,350 @@
+{
+  "name": "webrtc",
+  "description": "WebRTC for Chiχ",
+  "version": "0.0.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nodule/webrtc.git"
+  },
+  "dependencies": {
+    "webrtc": "x.x.x"
+  },
+  "nodes": [
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          },
+          "id": {
+            "title": "ID",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string",
+            "enum": [
+              "video",
+              "audio",
+              "screen"
+            ],
+            "default": "video"
+          },
+          "oneway": {
+            "title": "One Way?",
+            "type": "boolean",
+            "default": false
+          },
+          "sharemyscreen": {
+            "title": "Share My Screen",
+            "type": "boolean",
+            "default": false
+          },
+          "stream": {
+            "title": "WebRTC Stream",
+            "type": "function"
+          }
+        },
+        "output": {
+          "peer": {
+            "title": "Peer",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Creating Peer"
+      },
+      "description": "Create Peer",
+      "ns": "webrtc",
+      "name": "createPeer",
+      "fn": "webrtc = input.webrtc;\ndelete input.webrtc;\noutput = { peer: webrtc.createPeer(input) };\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Muting media"
+      },
+      "description": "Mute",
+      "ns": "webrtc",
+      "name": "mute",
+      "fn": "input.webrtc.mute();\noutput = { webrtc: input.webrtc };\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Pausing"
+      },
+      "description": "Pause",
+      "ns": "webrtc",
+      "name": "pause",
+      "fn": "input.webrtc.pause();\noutput = { webrtc: input.webrtc };\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Pausing video"
+      },
+      "description": "Pause Video",
+      "ns": "webrtc",
+      "name": "pauseVideo",
+      "fn": "input.webrtc.pauseVideo();\noutput = { webrtc: input.webrtc };\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Resuming"
+      },
+      "description": "Resume",
+      "ns": "webrtc",
+      "name": "resume",
+      "fn": "input.webrtc.resume();\noutput = { webrtc: input.webrtc };\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Resuming video"
+      },
+      "description": "Resume Video",
+      "ns": "webrtc",
+      "name": "resumeVideo",
+      "fn": "input.webrtc.resumeVideo();\noutput = { webrtc: input.webrtc };\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          },
+          "media": {
+            "type": "object",
+            "properties": {
+              "audio": {
+                "title": "Audio?",
+                "type": "boolean",
+                "default": true
+              },
+              "video": {
+                "title": "Video?",
+                "type": "boolean",
+                "default": true
+              }
+            }
+          }
+        },
+        "output": {
+          "err": {
+            "title": "Error",
+            "type": "object"
+          },
+          "stream": {
+            "title": "Stream",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Starting local media"
+      },
+      "description": "Start Local Media",
+      "ns": "webrtc",
+      "name": "startLocalMedia",
+      "fn": "output = [input.webrtc, 'startLocalMedia', input.media];\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Stopping local media"
+      },
+      "description": "Stop Local Media",
+      "ns": "webrtc",
+      "name": "stopLocalMedia",
+      "fn": "input.webrtc.stopLocalMedia();\noutput = { webrtc: input.webrtc };\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
+      "phrases": {
+        "active": "Unmuting media"
+      },
+      "description": "Unmute",
+      "ns": "webrtc",
+      "name": "unmute",
+      "fn": "input.webrtc.unmute();\noutput = { webrtc: input.webrtc };\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "debug": {
+            "title": "Debug",
+            "type": "boolean",
+            "default": false
+          },
+          "localVideoEl": {
+            "title": "Local Video Element",
+            "type": "any",
+            "required": true
+          },
+          "remoteVideosEl": {
+            "title": "Remote Videos Element",
+            "type": "any",
+            "required": true
+          },
+          "autoRequestMedia": {
+            "title": "Auto Request Media",
+            "type": "boolean",
+            "default": false
+          },
+          "autoAdjustMic": {
+            "title": "Auto Adjust Microphone",
+            "type": "boolean",
+            "default": false
+          },
+          "media": {
+            "type": "object",
+            "properties": {
+              "audio": {
+                "title": "Audio?",
+                "type": "boolean",
+                "default": true
+              },
+              "video": {
+                "title": "Video?",
+                "type": "boolean",
+                "default": true
+              }
+            }
+          },
+          "detectSpeakingEvents": {
+            "title": "Detect Speaking Events",
+            "type": "boolean",
+            "default": true
+          },
+          "enableDataChannels": {
+            "title": "Enable Data Channels",
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
+      "require": {
+        "webrtc": "latest"
+      },
+      "phrases": {
+        "active": "Launching WebRTC!"
+      },
+      "description": "WebRTC",
+      "ns": "webrtc",
+      "name": "webrtc",
+      "fn": "output = { webrtc: new webrtc(input) };\n"
+    }
+  ],
+  "twigs": []
+}

@@ -1,0 +1,23 @@
+{
+  "name": "pauseVideo",
+  "ns": "webrtc",
+  "description": "Pause Video",
+  "phrases": {
+    "active": "Pausing video"
+  },
+  "ports": {
+    "input": {
+      "webrtc": {
+        "title": "WebRTC",
+        "type": "function",
+        "required": true
+      }
+    },
+    "output": {
+      "webrtc": {
+        "title": "WebRTC",
+        "type": "function"
+      }
+    }
+  }
+}
