@@ -1,2 +1,2 @@
-skeleton for Chiχ
+WebRTC for Chiχ
 ========
