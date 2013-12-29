@@ -331,6 +331,38 @@
           "webrtc": {
             "title": "WebRTC",
             "type": "function"
+          },
+          "localStream": {
+            "title": "Local Stream",
+            "type": "function"
+          },
+          "localStreamStopped": {
+            "title": "Local Stream Stopped",
+            "type": "boolean"
+          },
+          "audio": {
+            "title": "Audio ON/OFF",
+            "type": "boolean"
+          },
+          "video": {
+            "title": "Video ON/OFF",
+            "type": "boolean"
+          },
+          "speaking": {
+            "title": "Speaking YES/NO",
+            "type": "boolean"
+          },
+          "message": {
+            "title": "Message",
+            "type": "any"
+          },
+          "peerStreamAdded": {
+            "title": "Peer Stream Added",
+            "type": "function"
+          },
+          "peerStreamRemoved": {
+            "title": "Peer Stream Removed",
+            "type": "function"
           }
         }
       },
@@ -343,7 +375,7 @@
       "description": "WebRTC",
       "ns": "webrtc",
       "name": "webrtc",
-      "fn": "output = { webrtc: new webrtc(input) };\n"
+      "fn": "output = function(cb) {\n\n  var wrtc = new webrtc(input);\n\n  // our direct port.\n  cb({\n    webrtc: wrtc\n  });\n\n  // send local stream\n  wrtc.on('localStream', function(stream) {\n     cb({ localStream: stream });\n  });\n\n  wrtc.on('localStreamStopped', function() {\n     cb({ localStreamStopped: true });\n  });\n\n  wrtc.on('audioOn', function() {\n     cb({ audio: true });\n  });\n\n  wrtc.on('audioOff', function() {\n     cb({ audio: false });\n  });\n\n  wrtc.on('videoOn', function() {\n     cb({ video: true });\n  });\n\n  wrtc.on('videoOff', function() {\n     cb({ video: false });\n  });\n\n  wrtc.on('speaking', function() {\n     cb({ speaking: true });\n  });\n\n  wrtc.on('stoppedSpeaking', function() {\n     cb({ speaking: false });\n  });\n\n  wrtc.on('message', function(message) {\n     cb({ message: message });\n  });\n\n  wrtc.on('peerStreamAdded', function(peer) {\n     cb({ peerStreamAdded: peer });\n  });\n\n  wrtc.on('peerStreamRemoved', function(peer) {\n     cb({ peerStreamRemoved: peer });\n  });\n\n};\n"
     }
   ],
   "twigs": []
