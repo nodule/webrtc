@@ -1,0 +1,35 @@
+{
+  "name": "hark",
+  "ns": "webrtc",
+  "description": "Hark",
+  "phrases": {
+    "active": "Harking"
+  },
+  "require": {
+    "hark": "latest"
+  },
+  "ports": {
+    "input": {
+      "stream": {
+        "title": "Stream",
+        "type": "function",
+        "description": "e.g. document.querySelector('audio')",
+        "required": true
+      }
+    },
+    "output": {
+      "speaking": {
+        "title": "Speaking",
+        "type": "boolean"
+      },
+      "volume": {
+        "title": "volume",
+        "type": "number"
+      },
+      "threshold": {
+        "title": "Treshold",
+        "type": "number"
+      }
+    }
+  }
+}

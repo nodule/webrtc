@@ -1,0 +1,33 @@
+{
+  "name": "attachMediaStream",
+  "ns": "webrtc",
+  "description": "AttachMediaStream (microphone, camera)",
+  "phrases": {
+    "active": "Attaching Media Stream"
+  },
+  "require": {
+    "attachmediastream": "latest"
+  },
+  "ports": {
+    "input": {
+      "element": {
+        "title": "Media Element",
+        "type": "any"
+      },
+      "stream": {
+        "title": "Stream",
+        "type": "function"
+      }
+    },
+    "output": {
+      "element": {
+        "title": "Media Element",
+        "type": "any"
+      },
+      "stream": {
+        "title": "Stream",
+        "type": "function"
+      }
+    }
+  }
+}

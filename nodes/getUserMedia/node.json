@@ -1,0 +1,25 @@
+{
+  "name": "getUserMedia",
+  "ns": "webrtc",
+  "description": "Get User Media (microphone, camera)",
+  "phrases": {
+    "active": "Getting User Media"
+  },
+  "require": {
+    "getusermedia": "latest"
+  },
+  "ports": {
+    "input": {
+    },
+    "output": {
+      "err": {
+        "title": "Error",
+        "type": "object"
+      },
+      "stream": {
+        "title": "Stream",
+        "type": "function"
+      }
+    }
+  }
+}

@@ -13,6 +13,40 @@
     {
       "ports": {
         "input": {
+          "element": {
+            "title": "Media Element",
+            "type": "any"
+          },
+          "stream": {
+            "title": "Stream",
+            "type": "function"
+          }
+        },
+        "output": {
+          "element": {
+            "title": "Media Element",
+            "type": "any"
+          },
+          "stream": {
+            "title": "Stream",
+            "type": "function"
+          }
+        }
+      },
+      "require": {
+        "attachmediastream": "latest"
+      },
+      "phrases": {
+        "active": "Attaching Media Stream"
+      },
+      "description": "AttachMediaStream (microphone, camera)",
+      "ns": "webrtc",
+      "name": "attachMediaStream",
+      "fn": "attachmediastream(input.element, input.stream)\noutput = input\n"
+    },
+    {
+      "ports": {
+        "input": {
           "webrtc": {
             "title": "WebRTC",
             "type": "function",
@@ -61,6 +95,67 @@
       "ns": "webrtc",
       "name": "createPeer",
       "fn": "webrtc = input.webrtc;\ndelete input.webrtc;\noutput = { peer: webrtc.createPeer(input) };\n"
+    },
+    {
+      "ports": {
+        "input": {},
+        "output": {
+          "err": {
+            "title": "Error",
+            "type": "object"
+          },
+          "stream": {
+            "title": "Stream",
+            "type": "function"
+          }
+        }
+      },
+      "require": {
+        "getusermedia": "latest"
+      },
+      "phrases": {
+        "active": "Getting User Media"
+      },
+      "description": "Get User Media (microphone, camera)",
+      "ns": "webrtc",
+      "name": "getUserMedia",
+      "fn": "var speachEvents = hark(input.stream);\n\noutput = function(cb) {\n\n  speechEvents.on('speaking', function() {\n    cb({ speaking: true });\n  });\n\n  speechEvents.on('volume_change', function(volume, threshold) {\n    cb({ volume: volume, treshold: treshold});\n  });\n\n  speechEvents.on('stopped_speaking', function() {\n    cb({ speaking: false });\n  });\n\n};\n"
+    },
+    {
+      "ports": {
+        "input": {
+          "stream": {
+            "title": "Stream",
+            "type": "function",
+            "description": "e.g. document.querySelector('audio')",
+            "required": true
+          }
+        },
+        "output": {
+          "speaking": {
+            "title": "Speaking",
+            "type": "boolean"
+          },
+          "volume": {
+            "title": "volume",
+            "type": "number"
+          },
+          "threshold": {
+            "title": "Treshold",
+            "type": "number"
+          }
+        }
+      },
+      "require": {
+        "hark": "latest"
+      },
+      "phrases": {
+        "active": "Harking"
+      },
+      "description": "Hark",
+      "ns": "webrtc",
+      "name": "hark",
+      "fn": "var speachEvents = hark(input.stream);\n\noutput = function(cb) {\n\n  speechEvents.on('speaking', function() {\n    cb({ speaking: true });\n  });\n\n  speechEvents.on('volume_change', function(volume, threshold) {\n    cb({ volume: volume, treshold: treshold});\n  });\n\n  speechEvents.on('stopped_speaking', function() {\n    cb({ speaking: false });\n  });\n\n};\n"
     },
     {
       "ports": {
