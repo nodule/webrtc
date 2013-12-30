@@ -7,7 +7,10 @@
     "url": "https://github.com/nodule/webrtc.git"
   },
   "dependencies": {
-    "webrtc": "x.x.x"
+    "webrtc": "x.x.x",
+    "hark": "x.x.x",
+    "getusermedia": "x.x.x",
+    "attachmediastream": "x.x.x"
   },
   "nodes": [
     {
