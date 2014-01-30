@@ -14,15 +14,6 @@
   },
   "nodes": [
     {
-      "name": "attachMediaStream",
-      "ns": "webrtc",
-      "description": "AttachMediaStream (microphone, camera)",
-      "phrases": {
-        "active": "Attaching Media Stream"
-      },
-      "require": {
-        "attachmediastream": "latest"
-      },
       "ports": {
         "input": {
           "element": {
@@ -45,15 +36,18 @@
           }
         }
       },
+      "require": {
+        "attachmediastream": "latest"
+      },
+      "phrases": {
+        "active": "Attaching Media Stream"
+      },
+      "description": "AttachMediaStream (microphone, camera)",
+      "ns": "webrtc",
+      "name": "attachMediaStream",
       "fn": "attachmediastream(input.element, input.stream)\noutput = input\n"
     },
     {
-      "name": "createPeer",
-      "ns": "webrtc",
-      "description": "Create Peer",
-      "phrases": {
-        "active": "Creating Peer"
-      },
       "ports": {
         "input": {
           "webrtc": {
@@ -97,18 +91,15 @@
           }
         }
       },
-      "fn": "webrtc = input.webrtc;\ndelete input.webrtc;\noutput = { peer: webrtc.createPeer(input) };\n"
+      "phrases": {
+        "active": "Creating Peer"
+      },
+      "description": "Create Peer",
+      "ns": "webrtc",
+      "name": "createPeer",
+      "fn": "webrtc = input.webrtc;\ndelete input.webrtc;\noutput = {\n  peer: webrtc.createPeer(input)\n};\n"
     },
     {
-      "name": "getUserMedia",
-      "ns": "webrtc",
-      "description": "Get User Media (microphone, camera)",
-      "phrases": {
-        "active": "Getting User Media"
-      },
-      "require": {
-        "getusermedia": "latest"
-      },
       "ports": {
         "input": {},
         "output": {
@@ -122,18 +113,18 @@
           }
         }
       },
-      "fn": "var speachEvents = hark(input.stream);\n\noutput = function(cb) {\n\n  speechEvents.on('speaking', function() {\n    cb({ speaking: true });\n  });\n\n  speechEvents.on('volume_change', function(volume, threshold) {\n    cb({ volume: volume, treshold: treshold});\n  });\n\n  speechEvents.on('stopped_speaking', function() {\n    cb({ speaking: false });\n  });\n\n};\n"
+      "require": {
+        "getusermedia": "latest"
+      },
+      "phrases": {
+        "active": "Getting User Media"
+      },
+      "description": "Get User Media (microphone, camera)",
+      "ns": "webrtc",
+      "name": "getUserMedia",
+      "fn": "var speachEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
     },
     {
-      "name": "hark",
-      "ns": "webrtc",
-      "description": "Hark",
-      "phrases": {
-        "active": "Harking"
-      },
-      "require": {
-        "hark": "latest"
-      },
       "ports": {
         "input": {
           "stream": {
@@ -158,15 +149,42 @@
           }
         }
       },
-      "fn": "var speachEvents = hark(input.stream);\n\noutput = function(cb) {\n\n  speechEvents.on('speaking', function() {\n    cb({ speaking: true });\n  });\n\n  speechEvents.on('volume_change', function(volume, threshold) {\n    cb({ volume: volume, treshold: treshold});\n  });\n\n  speechEvents.on('stopped_speaking', function() {\n    cb({ speaking: false });\n  });\n\n};\n"
+      "require": {
+        "hark": "latest"
+      },
+      "phrases": {
+        "active": "Harking"
+      },
+      "description": "Hark",
+      "ns": "webrtc",
+      "name": "hark",
+      "fn": "var speachEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
     },
     {
-      "name": "mute",
-      "ns": "webrtc",
-      "description": "Mute",
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
       "phrases": {
         "active": "Muting media"
       },
+      "description": "Mute",
+      "ns": "webrtc",
+      "name": "mute",
+      "fn": "input.webrtc.mute();\noutput = {\n  webrtc: input.webrtc\n};\n"
+    },
+    {
       "ports": {
         "input": {
           "webrtc": {
@@ -182,15 +200,15 @@
           }
         }
       },
-      "fn": "input.webrtc.mute();\noutput = { webrtc: input.webrtc };\n"
-    },
-    {
-      "name": "pause",
-      "ns": "webrtc",
-      "description": "Pause",
       "phrases": {
         "active": "Pausing"
       },
+      "description": "Pause",
+      "ns": "webrtc",
+      "name": "pause",
+      "fn": "input.webrtc.pause();\noutput = {\n  webrtc: input.webrtc\n};\n"
+    },
+    {
       "ports": {
         "input": {
           "webrtc": {
@@ -206,15 +224,15 @@
           }
         }
       },
-      "fn": "input.webrtc.pause();\noutput = { webrtc: input.webrtc };\n"
-    },
-    {
-      "name": "pauseVideo",
-      "ns": "webrtc",
-      "description": "Pause Video",
       "phrases": {
         "active": "Pausing video"
       },
+      "description": "Pause Video",
+      "ns": "webrtc",
+      "name": "pauseVideo",
+      "fn": "input.webrtc.pauseVideo();\noutput = {\n  webrtc: input.webrtc\n};\n"
+    },
+    {
       "ports": {
         "input": {
           "webrtc": {
@@ -230,15 +248,15 @@
           }
         }
       },
-      "fn": "input.webrtc.pauseVideo();\noutput = { webrtc: input.webrtc };\n"
-    },
-    {
-      "name": "resume",
-      "ns": "webrtc",
-      "description": "Resume",
       "phrases": {
         "active": "Resuming"
       },
+      "description": "Resume",
+      "ns": "webrtc",
+      "name": "resume",
+      "fn": "input.webrtc.resume();\noutput = {\n  webrtc: input.webrtc\n};\n"
+    },
+    {
       "ports": {
         "input": {
           "webrtc": {
@@ -254,39 +272,15 @@
           }
         }
       },
-      "fn": "input.webrtc.resume();\noutput = { webrtc: input.webrtc };\n"
-    },
-    {
-      "name": "resumeVideo",
-      "ns": "webrtc",
-      "description": "Resume Video",
       "phrases": {
         "active": "Resuming video"
       },
-      "ports": {
-        "input": {
-          "webrtc": {
-            "title": "WebRTC",
-            "type": "function",
-            "required": true
-          }
-        },
-        "output": {
-          "webrtc": {
-            "title": "WebRTC",
-            "type": "function"
-          }
-        }
-      },
-      "fn": "input.webrtc.resumeVideo();\noutput = { webrtc: input.webrtc };\n"
+      "description": "Resume Video",
+      "ns": "webrtc",
+      "name": "resumeVideo",
+      "fn": "input.webrtc.resumeVideo();\noutput = {\n  webrtc: input.webrtc\n};\n"
     },
     {
-      "name": "startLocalMedia",
-      "ns": "webrtc",
-      "description": "Start Local Media",
-      "phrases": {
-        "active": "Starting local media"
-      },
       "ports": {
         "input": {
           "webrtc": {
@@ -321,15 +315,39 @@
           }
         }
       },
+      "phrases": {
+        "active": "Starting local media"
+      },
+      "description": "Start Local Media",
+      "ns": "webrtc",
+      "name": "startLocalMedia",
       "fn": "output = [input.webrtc, 'startLocalMedia', input.media];\n"
     },
     {
-      "name": "stopLocalMedia",
-      "ns": "webrtc",
-      "description": "Stop Local Media",
+      "ports": {
+        "input": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function",
+            "required": true
+          }
+        },
+        "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "function"
+          }
+        }
+      },
       "phrases": {
         "active": "Stopping local media"
       },
+      "description": "Stop Local Media",
+      "ns": "webrtc",
+      "name": "stopLocalMedia",
+      "fn": "input.webrtc.stopLocalMedia();\noutput = {\n  webrtc: input.webrtc\n};\n"
+    },
+    {
       "ports": {
         "input": {
           "webrtc": {
@@ -345,42 +363,15 @@
           }
         }
       },
-      "fn": "input.webrtc.stopLocalMedia();\noutput = { webrtc: input.webrtc };\n"
-    },
-    {
-      "name": "unmute",
-      "ns": "webrtc",
-      "description": "Unmute",
       "phrases": {
         "active": "Unmuting media"
       },
-      "ports": {
-        "input": {
-          "webrtc": {
-            "title": "WebRTC",
-            "type": "function",
-            "required": true
-          }
-        },
-        "output": {
-          "webrtc": {
-            "title": "WebRTC",
-            "type": "function"
-          }
-        }
-      },
-      "fn": "input.webrtc.unmute();\noutput = { webrtc: input.webrtc };\n"
+      "description": "Unmute",
+      "ns": "webrtc",
+      "name": "unmute",
+      "fn": "input.webrtc.unmute();\noutput = {\n  webrtc: input.webrtc\n};\n"
     },
     {
-      "name": "webrtc",
-      "ns": "webrtc",
-      "description": "WebRTC",
-      "phrases": {
-        "active": "Launching WebRTC!"
-      },
-      "require": {
-        "webrtc": "latest"
-      },
       "ports": {
         "input": {
           "debug": {
@@ -473,7 +464,16 @@
           }
         }
       },
-      "fn": "output = function(cb) {\n\n  var wrtc = new webrtc(input);\n\n  // our direct port.\n  cb({\n    webrtc: wrtc\n  });\n\n  // send local stream\n  wrtc.on('localStream', function(stream) {\n     cb({ localStream: stream });\n  });\n\n  wrtc.on('localStreamStopped', function() {\n     cb({ localStreamStopped: true });\n  });\n\n  wrtc.on('audioOn', function() {\n     cb({ audio: true });\n  });\n\n  wrtc.on('audioOff', function() {\n     cb({ audio: false });\n  });\n\n  wrtc.on('videoOn', function() {\n     cb({ video: true });\n  });\n\n  wrtc.on('videoOff', function() {\n     cb({ video: false });\n  });\n\n  wrtc.on('speaking', function() {\n     cb({ speaking: true });\n  });\n\n  wrtc.on('stoppedSpeaking', function() {\n     cb({ speaking: false });\n  });\n\n  wrtc.on('message', function(message) {\n     cb({ message: message });\n  });\n\n  wrtc.on('peerStreamAdded', function(peer) {\n     cb({ peerStreamAdded: peer });\n  });\n\n  wrtc.on('peerStreamRemoved', function(peer) {\n     cb({ peerStreamRemoved: peer });\n  });\n\n};\n"
+      "require": {
+        "webrtc": "latest"
+      },
+      "phrases": {
+        "active": "Launching WebRTC!"
+      },
+      "description": "WebRTC",
+      "ns": "webrtc",
+      "name": "webrtc",
+      "fn": "output = function (cb) {\n\n  var wrtc = new webrtc(input);\n\n  // our direct port.\n  cb({\n    webrtc: wrtc\n  });\n\n  // send local stream\n  wrtc.on('localStream', function (stream) {\n    cb({\n      localStream: stream\n    });\n  });\n\n  wrtc.on('localStreamStopped', function () {\n    cb({\n      localStreamStopped: true\n    });\n  });\n\n  wrtc.on('audioOn', function () {\n    cb({\n      audio: true\n    });\n  });\n\n  wrtc.on('audioOff', function () {\n    cb({\n      audio: false\n    });\n  });\n\n  wrtc.on('videoOn', function () {\n    cb({\n      video: true\n    });\n  });\n\n  wrtc.on('videoOff', function () {\n    cb({\n      video: false\n    });\n  });\n\n  wrtc.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  wrtc.on('stoppedSpeaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n  wrtc.on('message', function (message) {\n    cb({\n      message: message\n    });\n  });\n\n  wrtc.on('peerStreamAdded', function (peer) {\n    cb({\n      peerStreamAdded: peer\n    });\n  });\n\n  wrtc.on('peerStreamRemoved', function (peer) {\n    cb({\n      peerStreamRemoved: peer\n    });\n  });\n\n};\n"
     }
   ],
   "twigs": []
