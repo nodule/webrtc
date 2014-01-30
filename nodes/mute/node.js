@@ -1,2 +1,4 @@
 input.webrtc.mute();
-output = { webrtc: input.webrtc };
+output = {
+  webrtc: input.webrtc
+};

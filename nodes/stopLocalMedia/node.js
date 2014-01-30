@@ -1,2 +1,4 @@
 input.webrtc.stopLocalMedia();
-output = { webrtc: input.webrtc };
+output = {
+  webrtc: input.webrtc
+};

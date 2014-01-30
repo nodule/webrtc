@@ -1,2 +1,4 @@
 input.webrtc.resume();
-output = { webrtc: input.webrtc };
+output = {
+  webrtc: input.webrtc
+};

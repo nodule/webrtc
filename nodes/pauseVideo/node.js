@@ -1,2 +1,4 @@
 input.webrtc.pauseVideo();
-output = { webrtc: input.webrtc };
+output = {
+  webrtc: input.webrtc
+};
