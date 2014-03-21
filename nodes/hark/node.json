@@ -6,18 +6,22 @@
     "active": "Harking"
   },
   "require": {
-    "hark": "latest"
+    "hark": "0.x.x"
   },
   "ports": {
     "input": {
       "stream": {
         "title": "Stream",
-        "type": "function",
+        "type": "DOMString",
         "description": "e.g. document.querySelector('audio')",
         "required": true
       }
     },
     "output": {
+      "stream": {
+        "title": "Stream",
+        "type": "DOMString"
+      },
       "speaking": {
         "title": "Speaking",
         "type": "boolean"

@@ -9,14 +9,14 @@
     "input": {
       "webrtc": {
         "title": "WebRTC",
-        "type": "function",
+        "type": "WebRTC",
         "required": true
       }
     },
     "output": {
       "webrtc": {
         "title": "WebRTC",
-        "type": "function"
+        "type": "WebRTC"
       }
     }
   }

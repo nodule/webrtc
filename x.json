@@ -7,10 +7,10 @@
     "url": "https://github.com/nodule/webrtc.git"
   },
   "dependencies": {
-    "webrtc": "x.x.x",
-    "hark": "x.x.x",
-    "getusermedia": "x.x.x",
-    "attachmediastream": "x.x.x"
+    "webrtc": "1.x.x",
+    "hark": "0.x.x",
+    "getusermedia": "0.x.x",
+    "attachmediastream": "0.x.x"
   },
   "nodes": [
     {
@@ -18,26 +18,26 @@
         "input": {
           "element": {
             "title": "Media Element",
-            "type": "any"
+            "type": "HTMLElement"
           },
           "stream": {
             "title": "Stream",
-            "type": "function"
+            "type": "DOMString"
           }
         },
         "output": {
           "element": {
             "title": "Media Element",
-            "type": "any"
+            "type": "HTMLElement"
           },
           "stream": {
             "title": "Stream",
-            "type": "function"
+            "type": "DOMString"
           }
         }
       },
       "require": {
-        "attachmediastream": "latest"
+        "attachmediastream": "0.x.x"
       },
       "phrases": {
         "active": "Attaching Media Stream"
@@ -109,12 +109,12 @@
           },
           "stream": {
             "title": "Stream",
-            "type": "function"
+            "type": "DOMString"
           }
         }
       },
       "require": {
-        "getusermedia": "latest"
+        "getusermedia": "0.x.x"
       },
       "phrases": {
         "active": "Getting User Media"
@@ -122,19 +122,23 @@
       "description": "Get User Media (microphone, camera)",
       "ns": "webrtc",
       "name": "getUserMedia",
-      "fn": "var speachEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
+      "fn": "var speachEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
     },
     {
       "ports": {
         "input": {
           "stream": {
             "title": "Stream",
-            "type": "function",
+            "type": "DOMString",
             "description": "e.g. document.querySelector('audio')",
             "required": true
           }
         },
         "output": {
+          "stream": {
+            "title": "Stream",
+            "type": "DOMString"
+          },
           "speaking": {
             "title": "Speaking",
             "type": "boolean"
@@ -150,7 +154,7 @@
         }
       },
       "require": {
-        "hark": "latest"
+        "hark": "0.x.x"
       },
       "phrases": {
         "active": "Harking"
@@ -158,21 +162,21 @@
       "description": "Hark",
       "ns": "webrtc",
       "name": "hark",
-      "fn": "var speachEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
+      "fn": "var speachEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
     },
     {
       "ports": {
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           }
         },
         "output": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function"
+            "type": "WebRTC"
           }
         }
       },
@@ -189,14 +193,14 @@
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           }
         },
         "output": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function"
+            "type": "WebRTC"
           }
         }
       },
@@ -213,14 +217,14 @@
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           }
         },
         "output": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function"
+            "type": "WebRTC"
           }
         }
       },
@@ -237,14 +241,14 @@
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           }
         },
         "output": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function"
+            "type": "WebRTC"
           }
         }
       },
@@ -261,14 +265,14 @@
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           }
         },
         "output": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function"
+            "type": "WebRTC"
           }
         }
       },
@@ -285,7 +289,7 @@
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           },
           "media": {
@@ -311,7 +315,7 @@
           },
           "stream": {
             "title": "Stream",
-            "type": "function"
+            "type": "DOMString"
           }
         }
       },
@@ -328,14 +332,14 @@
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           }
         },
         "output": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function"
+            "type": "WebRTC"
           }
         }
       },
@@ -352,14 +356,14 @@
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           }
         },
         "output": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function"
+            "type": "WebRTC"
           }
         }
       },
@@ -428,11 +432,11 @@
         "output": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function"
+            "type": "WebRTC"
           },
           "localStream": {
             "title": "Local Stream",
-            "type": "function"
+            "type": "DOMString"
           },
           "localStreamStopped": {
             "title": "Local Stream Stopped",
@@ -456,16 +460,16 @@
           },
           "peerStreamAdded": {
             "title": "Peer Stream Added",
-            "type": "function"
+            "type": "DOMString"
           },
           "peerStreamRemoved": {
             "title": "Peer Stream Removed",
-            "type": "function"
+            "type": "DOMString"
           }
         }
       },
       "require": {
-        "webrtc": "latest"
+        "webrtc": "1.x.x"
       },
       "phrases": {
         "active": "Launching WebRTC!"

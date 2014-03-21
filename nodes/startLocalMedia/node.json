@@ -9,7 +9,7 @@
     "input": {
       "webrtc": {
         "title": "WebRTC",
-        "type": "function",
+        "type": "WebRTC",
         "required": true
       },
       "media": {
@@ -35,7 +35,7 @@
       },
       "stream": {
         "title": "Stream",
-        "type": "function"
+        "type": "DOMString"
       }
     }
   }

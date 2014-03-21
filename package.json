@@ -16,10 +16,10 @@
     "test": "chit -r"
   },
   "dependencies": {
-    "webrtc": "x.x.x",
-    "hark": "x.x.x",
-    "getusermedia": "x.x.x",
-    "attachmediastream": "x.x.x"
+    "webrtc": "1.x.x",
+    "hark": "0.x.x",
+    "getusermedia": "0.x.x",
+    "attachmediastream": "0.x.x"
   },
   "devDependencies": {
     "chit": "0.x.x"

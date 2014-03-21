@@ -6,7 +6,7 @@
     "active": "Getting User Media"
   },
   "require": {
-    "getusermedia": "latest"
+    "getusermedia": "0.x.x"
   },
   "ports": {
     "input": {
@@ -18,7 +18,7 @@
       },
       "stream": {
         "title": "Stream",
-        "type": "function"
+        "type": "DOMString"
       }
     }
   }

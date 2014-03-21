@@ -6,27 +6,27 @@
     "active": "Attaching Media Stream"
   },
   "require": {
-    "attachmediastream": "latest"
+    "attachmediastream": "0.x.x"
   },
   "ports": {
     "input": {
       "element": {
         "title": "Media Element",
-        "type": "any"
+        "type": "HTMLElement"
       },
       "stream": {
         "title": "Stream",
-        "type": "function"
+        "type": "DOMString"
       }
     },
     "output": {
       "element": {
         "title": "Media Element",
-        "type": "any"
+        "type": "HTMLElement"
       },
       "stream": {
         "title": "Stream",
-        "type": "function"
+        "type": "DOMString"
       }
     }
   }

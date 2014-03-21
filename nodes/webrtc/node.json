@@ -6,7 +6,7 @@
     "active": "Launching WebRTC!"
   },
   "require": {
-    "webrtc": "latest"
+    "webrtc": "1.x.x"
   },
   "ports": {
     "input": {
@@ -64,11 +64,11 @@
     "output": {
       "webrtc": {
         "title": "WebRTC",
-        "type": "function"
+        "type": "WebRTC"
       },
       "localStream": {
         "title": "Local Stream",
-        "type": "function"
+        "type": "DOMString"
       },
       "localStreamStopped": {
         "title": "Local Stream Stopped",
@@ -92,11 +92,11 @@
       },
       "peerStreamAdded": {
         "title": "Peer Stream Added",
-        "type": "function"
+        "type": "DOMString"
       },
       "peerStreamRemoved": {
         "title": "Peer Stream Removed",
-        "type": "function"
+        "type": "DOMString"
       }
     }
   }

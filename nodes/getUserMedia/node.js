@@ -2,6 +2,10 @@ var speachEvents = hark(input.stream);
 
 output = function (cb) {
 
+  cb({
+    stream: input.stream
+  });
+
   speechEvents.on('speaking', function () {
     cb({
       speaking: true
