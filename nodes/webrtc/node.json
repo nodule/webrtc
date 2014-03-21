@@ -92,11 +92,11 @@
       },
       "peerStreamAdded": {
         "title": "Peer Stream Added",
-        "type": "DOMString"
+        "type": "Peer"
       },
       "peerStreamRemoved": {
         "title": "Peer Stream Removed",
-        "type": "DOMString"
+        "type": "Peer"
       }
     }
   }

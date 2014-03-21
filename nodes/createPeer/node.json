@@ -9,7 +9,7 @@
     "input": {
       "webrtc": {
         "title": "WebRTC",
-        "type": "function",
+        "type": "WebRTC",
         "required": true
       },
       "id": {
@@ -38,13 +38,17 @@
       },
       "stream": {
         "title": "WebRTC Stream",
-        "type": "function"
+        "type": "DOMString"
       }
     },
     "output": {
+      "webrtc": {
+        "title": "WebRTC",
+        "type": "WebRTC"
+      },
       "peer": {
         "title": "Peer",
-        "type": "function"
+        "type": "Peer"
       }
     }
   }
