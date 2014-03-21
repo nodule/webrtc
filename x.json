@@ -52,7 +52,7 @@
         "input": {
           "webrtc": {
             "title": "WebRTC",
-            "type": "function",
+            "type": "WebRTC",
             "required": true
           },
           "id": {
@@ -81,13 +81,17 @@
           },
           "stream": {
             "title": "WebRTC Stream",
-            "type": "function"
+            "type": "DOMString"
           }
         },
         "output": {
+          "webrtc": {
+            "title": "WebRTC",
+            "type": "WebRTC"
+          },
           "peer": {
             "title": "Peer",
-            "type": "function"
+            "type": "Peer"
           }
         }
       },
@@ -97,7 +101,7 @@
       "description": "Create Peer",
       "ns": "webrtc",
       "name": "createPeer",
-      "fn": "webrtc = input.webrtc;\ndelete input.webrtc;\noutput = {\n  peer: webrtc.createPeer(input)\n};\n"
+      "fn": "webrtc = input.webrtc;\ndelete input.webrtc;\noutput = {\n  peer: webrtc.createPeer(input),\n  webrtc: webrtc\n};\n"
     },
     {
       "ports": {
@@ -460,11 +464,11 @@
           },
           "peerStreamAdded": {
             "title": "Peer Stream Added",
-            "type": "DOMString"
+            "type": "Peer"
           },
           "peerStreamRemoved": {
             "title": "Peer Stream Removed",
-            "type": "DOMString"
+            "type": "Peer"
           }
         }
       },
