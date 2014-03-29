@@ -166,7 +166,7 @@
       "description": "Hark",
       "ns": "webrtc",
       "name": "hark",
-      "fn": "var speachEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
+      "fn": "var speechEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
     },
     {
       "ports": {

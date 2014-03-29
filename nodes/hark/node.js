@@ -1,4 +1,4 @@
-var speachEvents = hark(input.stream);
+var speechEvents = hark(input.stream);
 
 output = function (cb) {
 
