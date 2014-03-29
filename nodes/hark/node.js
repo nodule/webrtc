@@ -15,7 +15,7 @@ output = function (cb) {
   speechEvents.on('volume_change', function (volume, threshold) {
     cb({
       volume: volume,
-      treshold: treshold
+      threshold: threshold
     });
   });
 
