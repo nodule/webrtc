@@ -22,7 +22,7 @@
           },
           "stream": {
             "title": "Stream",
-            "type": "DOMString"
+            "type": "HTMLElement"
           }
         },
         "output": {
@@ -32,7 +32,7 @@
           },
           "stream": {
             "title": "Stream",
-            "type": "DOMString"
+            "type": "HTMLElement"
           }
         }
       },
@@ -81,7 +81,7 @@
           },
           "stream": {
             "title": "WebRTC Stream",
-            "type": "DOMString"
+            "type": "HTMLElement"
           }
         },
         "output": {
@@ -113,7 +113,7 @@
           },
           "stream": {
             "title": "Stream",
-            "type": "DOMString"
+            "type": "HTMLElement"
           }
         }
       },
@@ -133,7 +133,7 @@
         "input": {
           "stream": {
             "title": "Stream",
-            "type": "DOMString",
+            "type": "HTMLElement",
             "description": "e.g. document.querySelector('audio')",
             "required": true
           }
@@ -141,7 +141,7 @@
         "output": {
           "stream": {
             "title": "Stream",
-            "type": "DOMString"
+            "type": "HTMLElement"
           },
           "speaking": {
             "title": "Speaking",
@@ -319,7 +319,7 @@
           },
           "stream": {
             "title": "Stream",
-            "type": "DOMString"
+            "type": "HTMLElement"
           }
         }
       },
@@ -440,7 +440,7 @@
           },
           "localStream": {
             "title": "Local Stream",
-            "type": "DOMString"
+            "type": "HTMLElement"
           },
           "localStreamStopped": {
             "title": "Local Stream Stopped",

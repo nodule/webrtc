@@ -38,7 +38,7 @@
       },
       "stream": {
         "title": "WebRTC Stream",
-        "type": "DOMString"
+        "type": "HTMLElement"
       }
     },
     "output": {

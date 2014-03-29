@@ -68,7 +68,7 @@
       },
       "localStream": {
         "title": "Local Stream",
-        "type": "DOMString"
+        "type": "HTMLElement"
       },
       "localStreamStopped": {
         "title": "Local Stream Stopped",

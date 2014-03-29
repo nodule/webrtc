@@ -12,7 +12,7 @@
     "input": {
       "stream": {
         "title": "Stream",
-        "type": "DOMString",
+        "type": "HTMLElement",
         "description": "e.g. document.querySelector('audio')",
         "required": true
       }
@@ -20,7 +20,7 @@
     "output": {
       "stream": {
         "title": "Stream",
-        "type": "DOMString"
+        "type": "HTMLElement"
       },
       "speaking": {
         "title": "Speaking",
