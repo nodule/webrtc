@@ -5,12 +5,8 @@
   "phrases": {
     "active": "Getting User Media"
   },
-  "require": {
-    "getusermedia": "0.x.x"
-  },
   "ports": {
-    "input": {
-    },
+    "input": {},
     "output": {
       "error": {
         "title": "Error",
@@ -20,6 +16,11 @@
         "title": "Stream",
         "type": "HTMLElement"
       }
+    }
+  },
+  "dependencies": {
+    "npm": {
+      "getusermedia": "0.x.x"
     }
   }
 }

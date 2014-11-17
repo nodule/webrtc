@@ -5,9 +5,6 @@
   "phrases": {
     "active": "Attaching Media Stream"
   },
-  "require": {
-    "attachmediastream": "0.x.x"
-  },
   "ports": {
     "input": {
       "element": {
@@ -28,6 +25,11 @@
         "title": "Stream",
         "type": "HTMLElement"
       }
+    }
+  },
+  "dependencies": {
+    "npm": {
+      "attachmediastream": "0.x.x"
     }
   }
 }

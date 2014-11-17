@@ -5,9 +5,6 @@
   "phrases": {
     "active": "Launching WebRTC!"
   },
-  "require": {
-    "webrtc": "1.x.x"
-  },
   "ports": {
     "input": {
       "debug": {
@@ -98,6 +95,11 @@
         "title": "Peer Stream Removed",
         "type": "Peer"
       }
+    }
+  },
+  "dependencies": {
+    "npm": {
+      "webrtc": "1.x.x"
     }
   }
 }

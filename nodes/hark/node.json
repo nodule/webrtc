@@ -5,9 +5,6 @@
   "phrases": {
     "active": "Harking"
   },
-  "require": {
-    "hark": "0.x.x"
-  },
   "ports": {
     "input": {
       "stream": {
@@ -34,6 +31,11 @@
         "title": "Treshold",
         "type": "number"
       }
+    }
+  },
+  "dependencies": {
+    "npm": {
+      "hark": "0.x.x"
     }
   }
 }

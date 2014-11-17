@@ -14,6 +14,11 @@
   },
   "nodes": [
     {
+      "dependencies": {
+        "npm": {
+          "attachmediastream": "0.x.x"
+        }
+      },
       "ports": {
         "input": {
           "element": {
@@ -35,9 +40,6 @@
             "type": "HTMLElement"
           }
         }
-      },
-      "require": {
-        "attachmediastream": "0.x.x"
       },
       "phrases": {
         "active": "Attaching Media Stream"
@@ -104,6 +106,11 @@
       "fn": "webrtc = input.webrtc;\ndelete input.webrtc;\noutput = {\n  peer: webrtc.createPeer(input),\n  webrtc: webrtc\n};\n"
     },
     {
+      "dependencies": {
+        "npm": {
+          "getusermedia": "0.x.x"
+        }
+      },
       "ports": {
         "input": {},
         "output": {
@@ -117,9 +124,6 @@
           }
         }
       },
-      "require": {
-        "getusermedia": "0.x.x"
-      },
       "phrases": {
         "active": "Getting User Media"
       },
@@ -129,6 +133,11 @@
       "fn": "var speachEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
     },
     {
+      "dependencies": {
+        "npm": {
+          "hark": "0.x.x"
+        }
+      },
       "ports": {
         "input": {
           "stream": {
@@ -156,9 +165,6 @@
             "type": "number"
           }
         }
-      },
-      "require": {
-        "hark": "0.x.x"
       },
       "phrases": {
         "active": "Harking"
@@ -380,6 +386,11 @@
       "fn": "input.webrtc.unmute();\noutput = {\n  webrtc: input.webrtc\n};\n"
     },
     {
+      "dependencies": {
+        "npm": {
+          "webrtc": "1.x.x"
+        }
+      },
       "ports": {
         "input": {
           "debug": {
@@ -471,9 +482,6 @@
             "type": "Peer"
           }
         }
-      },
-      "require": {
-        "webrtc": "1.x.x"
       },
       "phrases": {
         "active": "Launching WebRTC!"
