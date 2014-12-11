@@ -11,7 +11,7 @@ Speaking(dom/show)
 Silent(dom/hide)
 
 WebrtcHark(webrtc/hark)
-ConsoleLog(console/log)
+SpeakingLog(console/log)
 
 './views/mlk.hb' ~> body MlkView
 {
@@ -22,13 +22,20 @@ ConsoleLog(console/log)
 "body"          -> selector BodyEl
 "#mlkSpeaking"  -> selector SpeakingEl
 
-BodyEl selection -> element MlkViewUpdate
-MlkView out      ->    html MlkViewUpdate
+BodyEl selection     ->  element MlkViewUpdate
+SpeakingEl selection -> ^element Speaking
+SpeakingEl selection -> ^element Silent
+MlkView out          ->     html MlkViewUpdate
 
-"Silence! I'm speaking" -> @msg ConsoleLog
+"Silence! I'm speaking" -> @msg SpeakingLog
+"I'm silent"            -> @msg SilenceLog(console/log)
 
 MlkViewUpdate element -> :start AudioEl
+MlkViewUpdate element -> :start SpeakingEl
 AudioEl selection     -> stream WebrtcHark
-WebrtcHark speaking   -> :start ConsoleLog
-WebrtcHark speaking   -> element Silent
-WebrtcHark silent     -> element Speaking
+
+WebrtcHark speaking   -> :start Speaking
+WebrtcHark speaking   -> :start SpeakingLog
+
+WebrtcHark silence    -> :start Silent
+WebrtcHark silence    -> :start SilenceLog
