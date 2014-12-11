@@ -156,8 +156,8 @@
             "title": "Speaking",
             "type": "HTMLElement"
           },
-          "silent": {
-            "title": "Speaking",
+          "silence": {
+            "title": "Silence",
             "type": "HTMLelement"
           },
           "volume": {
@@ -176,7 +176,7 @@
       "description": "Hark",
       "ns": "webrtc",
       "name": "hark",
-      "fn": "var speechEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: input.stream\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      threshold: threshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      silent: input.stream\n    });\n  });\n\n};\n"
+      "fn": "var speechEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: input.stream\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      threshold: threshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      silence: input.stream\n    });\n  });\n\n};\n"
     },
     {
       "ports": {

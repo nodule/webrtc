@@ -23,8 +23,8 @@
         "title": "Speaking",
         "type": "HTMLElement"
       },
-      "silent": {
-        "title": "Speaking",
+      "silence": {
+        "title": "Silence",
         "type": "HTMLelement"
       },
       "volume": {

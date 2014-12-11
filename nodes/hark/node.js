@@ -21,7 +21,7 @@ output = function (cb) {
 
   speechEvents.on('stopped_speaking', function () {
     cb({
-      silent: input.stream
+      silence: input.stream
     });
   });
 
