@@ -1,0 +1,51 @@
+<html>
+  <head>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/cyborg/bootstrap.min.css">
+    <script src="bundle.js"></script>
+    <style>
+
+      body {
+      }
+
+      table {
+        font-size: x-small;
+        width: 100%;
+      }
+
+      .node {
+       border: 1px solid white;
+       display: block;
+       width: 150px;
+       overflow: hidden;
+      }
+
+      .node:hover {
+        background-color: white;
+        cursor: pointer;
+      }
+      .node:hover h3 {
+        font-weight: bold;
+        color: black;
+      }
+
+      .node h3 {
+        font-size: small;
+      }
+
+      .node.running {
+        background-color: green;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="panel" class="panel"></div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div id="connections" class="col-lg-3"></div>
+        <div id="canvas" class="col-lg-8"></div>
+      </div>
+    </div>
+  </body>
+</html>

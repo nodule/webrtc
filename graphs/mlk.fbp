@@ -1,0 +1,28 @@
+title: MLK
+
+MlkView(template/handlebars)
+MlkViewUpdate(dom/setHtml)
+
+AudioEl(dom/querySelector)
+BodyEl(dom/querySelector)
+
+WebrtcHark(webrtc/hark)
+ConsoleLog(console/log)
+DomQuerySelector2(dom/querySelector)
+
+'./views/mlk.hb' ~> body MlkView
+{
+  "title": "MLK FBP"
+} -> vars MlkView
+
+"audio" -> selector AudioEl
+"body"  -> selector BodyEl
+
+BodyEl selection -> element MlkViewUpdate
+MlkView out      ->    html MlkViewUpdate
+
+"Silence! I'm speaking" -> @msg ConsoleLog
+
+MlkViewUpdate element -> :start AudioEl
+AudioEl selection       -> stream WebrtcHark
+WebrtcHark speaking     -> :start ConsoleLog

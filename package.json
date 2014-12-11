@@ -22,7 +22,9 @@
     "attachmediastream": "0.x.x"
   },
   "devDependencies": {
-    "chit": "0.x.x"
+    "chit": "0.x.x",
+    "chix-flow": "^0.10.5",
+    "chix-monitor-npmlog": "0.0.5"
   },
   "chix": {
     "name": "webrtc",

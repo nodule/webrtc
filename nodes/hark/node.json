@@ -21,7 +21,11 @@
       },
       "speaking": {
         "title": "Speaking",
-        "type": "boolean"
+        "type": "HTMLElement"
+      },
+      "silent": {
+        "title": "Speaking",
+        "type": "HTMLelement"
       },
       "volume": {
         "title": "volume",
