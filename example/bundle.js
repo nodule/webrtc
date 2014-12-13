@@ -2083,6 +2083,10 @@ Actor.prototype.__input = function(link, p) {
     ret = targetNode.fill(link.target, p);
 
     if (util.isError(ret)) {
+
+      // set node in error state and output error to ioManager
+      targetNode.error(ret);
+
       self.ioHandler.reject(ret, link, p);
 
     } else {
@@ -5082,7 +5086,7 @@ IoMapHandler.prototype.__sendData = function(link, p) {
       // what is not cloned is CHI, so could cause a problem..
       cp.chi = JSON.parse(JSON.stringify(cp.chi));
 
-      cp = p.clone(); // important!
+      cp = p.clone(false); // important!
 
       cp.data = this.handleIndex(link, cp);
     }
@@ -6270,7 +6274,7 @@ Node.prototype._callbackWrapper = function() {
       // not the object I send
       // Not sure what to do here, it's not really fatal.
       this.event(':error', {
-        msg: new Error(
+        msg: Error(
           util.format('Unexpected extra port of type %s',
           typeof arguments[i] === 'object' ?
             arguments[i].constructor.name : typeof arguments[i]
@@ -6392,7 +6396,7 @@ Node.prototype._output = function(output) {
   var port;
 
   if (typeof output === 'function') {
-    output(this._asyncOutput.bind(this));
+    output.call(this, this._asyncOutput.bind(this));
     return;
   }
 
@@ -6431,7 +6435,14 @@ Node.prototype._runPortBox = function(port) {
   sb.set('input', this.input); // add all (sync) input.
 
   this.setStatus('running');
-  sb.run(this);
+  var ret = sb.run(this);
+
+  if(ret === false) {
+    // if ret === false input should be revoked and re-queued.
+    // which means it must look like we didn't accept the packet in
+    // the first place.
+    return false;
+  }
 
   // todo portbox itself should probably also
   // maintain it's runcount, this one is cumulative
@@ -6524,7 +6535,7 @@ Node.prototype._fillPort = function(target, p) {
   var res;
 
   if (undefined === p.data) {
-    return Error(this, 'data may not be `undefined`');
+    return Error('data may not be `undefined`');
   }
 
   // Not used
@@ -6773,12 +6784,11 @@ Node.prototype._readyOrNot = function() {
 
         if (this.async) {
 
-          var ran = false;
-
           // really have no clue why these must run together
           // and why I try to support 4 different ways of writing
           // a component and sqeeze it into one class.
 
+          var async_ran = 0;
           for (var port in this.ports.input) {
 
             // run all async which have input.
@@ -6786,14 +6796,24 @@ Node.prototype._readyOrNot = function() {
             if (this.ports.input[port].async &&
                this.input[port] !== undefined) {
 
-              this._runPortBox(port);
+              ret = this._runPortBox(port);
 
-              ran = true;
+              if (ret === false) {
+                // revoke input
+                if (async_ran > 0) {
+                  // only problem now is the multpile async ports.
+                  //
+                  throw Error('Input revoked, yet one async already ran');
+                }
+                return false;
+              }
+
+              async_ran++;
 
             }
           }
 
-          if (ran) {
+          if (async_ran > 0) {
             this.freeInput();
           }
 
@@ -6946,7 +6966,7 @@ Node.prototype._fillDefault = function(port) {
 
     if (port[0] !== ':') {
       // fail hard
-      return new Error(util.format(
+      return Error(util.format(
         '%s: Cannot determine input for port `%s`',
         this.identifier,
         port
@@ -8093,7 +8113,8 @@ xNode.prototype._validateInput = function(port, data) {
       msg: msg
     });
 
-    return Error(this, msg);
+    //return Error(this, msg);
+    return Error(msg);
   }
 
   if (!this.validateData(this.ports.input[port].type, data)) {
@@ -8112,8 +8133,12 @@ xNode.prototype._validateInput = function(port, data) {
         real = tmp;
       }
     }
-
+/*
     return Error(this, util.format(
+      'Expected `%s` got `%s` on port `%s`',
+      expected, real, port));
+*/
+    return Error(util.format(
       'Expected `%s` got `%s` on port `%s`',
       expected, real, port));
   }
@@ -8179,7 +8204,7 @@ xNode.prototype.sendPortOutput = function(port, output, chi) {
       });
 
     } else {
-      throw new Error(this.identifier + ': no such output port ' + port);
+      throw Error(this.identifier + ': no such output port ' + port);
     }
 
   }
@@ -8454,7 +8479,8 @@ xNode.prototype.removePort = function(type, port) {
       return true;
     }
   } else {
-    return Error(this, 'No such port');
+    //return Error(this, 'No such port');
+    return Error('No such port');
   }
 };
 
@@ -8464,7 +8490,8 @@ xNode.prototype.renamePort = function(type, from, to) {
     delete this.ports[type][from];
     return true;
   } else {
-    return Error(this, 'No such port');
+    //return Error(this, 'No such port');
+    return Error('No such port');
   }
 };
 
@@ -8548,7 +8575,8 @@ xNode.prototype.closePort = function(port) {
   } else {
 
     // TODO: make these error codes, used many times, etc.
-    return Error(this, util.format('no such port: **%s**', port));
+    //return Error(this, util.format('no such port: **%s**', port));
+    return Error(util.format('no such port: **%s**', port));
 
   }
 
@@ -8729,7 +8757,8 @@ xNode.prototype.unplug = function(link) {
     var pos = this._connections[link.target.port].indexOf(link);
     if (pos === -1) {
       // problem of whoever tries to unplug it
-      return Error(this, 'Link is not connected to this port');
+      //return Error(this, 'Link is not connected to this port');
+      return Error('Link is not connected to this port');
     }
 
     this._connections[link.target.port].splice(pos, 1);
@@ -8765,7 +8794,7 @@ xNode.prototype.unplug = function(link) {
     if (link.target.port !== ':start') {
 
       // problem of whoever tries to unplug
-      return Error(this, util.format(
+      return Error(util.format(
         'Process `%s` has no input port named `%s`\n\n\t' +
         'Input ports available: \n\n\t%s',
         this.identifier,
@@ -9071,8 +9100,24 @@ Packet.prototype.write = function(data) {
 };
 
 // clone can only take place on plain object data.
-Packet.prototype.clone = function() {
-  var p = new Packet(JSON.parse(JSON.stringify(this.data)));
+
+/**
+ * Clone the current packet
+ *
+ * In case of non plain objects it's mostly desired
+ * not to clone the data itself, however do create a *new*
+ * packet with the other cloned information.
+ *
+ * To enable this set cloneData to true.
+ *
+ * @param {Boolean} cloneData Whether or not to clone the data.
+ */
+Packet.prototype.clone = function(cloneData) {
+  var p = new Packet(
+    cloneData === undefined?
+    JSON.parse(JSON.stringify(this.data)) :
+    this.data
+  );
   p.set('chi', JSON.parse(JSON.stringify(this.chi)));
   return p;
 };
@@ -9141,7 +9186,7 @@ if (process.on) { // old browserify
  * @public
  *
  */
-function DefaultProcessManager() {
+function ProcessManager() {
 
   this.processes = {};
 
@@ -9149,13 +9194,13 @@ function DefaultProcessManager() {
 
 }
 
-util.inherits(DefaultProcessManager, EventEmitter);
+util.inherits(ProcessManager, EventEmitter);
 
-DefaultProcessManager.prototype.getMainGraph = function() {
+ProcessManager.prototype.getMainGraph = function() {
   return this.getMainGraphs().pop();
 };
 
-DefaultProcessManager.prototype.getMainGraphs = function() {
+ProcessManager.prototype.getMainGraphs = function() {
 
   var main = [];
   var key;
@@ -9174,7 +9219,7 @@ DefaultProcessManager.prototype.getMainGraphs = function() {
 
 };
 
-DefaultProcessManager.prototype.register = function(node) {
+ProcessManager.prototype.register = function(node) {
 
   var self = this;
 
@@ -9231,7 +9276,7 @@ DefaultProcessManager.prototype.register = function(node) {
  * Is already within an error state.
  *
  */
-DefaultProcessManager.prototype.processErrorHandler = function(event) {
+ProcessManager.prototype.processErrorHandler = function(event) {
 
   if (event.node.status !== 'error') {
     console.log('STATUS', event.node.status);
@@ -9243,7 +9288,7 @@ DefaultProcessManager.prototype.processErrorHandler = function(event) {
 
 };
 
-DefaultProcessManager.prototype.changePid = function(from, to) {
+ProcessManager.prototype.changePid = function(from, to) {
 
   if (this.processes.hasOwnProperty(from)) {
     this.processes[to] = this.processes[from];
@@ -9257,7 +9302,7 @@ DefaultProcessManager.prototype.changePid = function(from, to) {
 };
 
 // TODO: improve start, stop, hold, release logic..
-DefaultProcessManager.prototype.start = function(node) {
+ProcessManager.prototype.start = function(node) {
 
   // allow by pid and by node object
   var pid = typeof node === 'object' ? node.pid : node;
@@ -9273,7 +9318,7 @@ DefaultProcessManager.prototype.start = function(node) {
   }
 };
 
-DefaultProcessManager.prototype.stop = function(node, cb) {
+ProcessManager.prototype.stop = function(node, cb) {
 
   // allow by pid and by node object
   var pid = typeof node === 'object' ? node.pid : node;
@@ -9292,7 +9337,7 @@ DefaultProcessManager.prototype.stop = function(node, cb) {
 // TODO: just deleting is not enough.
 // links also contains the pids
 // on remove process those links should also be removed.
-DefaultProcessManager.prototype.unregister = function(node, cb) {
+ProcessManager.prototype.unregister = function(node, cb) {
 
   var self = this;
 
@@ -9337,7 +9382,7 @@ DefaultProcessManager.prototype.unregister = function(node, cb) {
 * Either by id or it's pid.
 *
 */
-DefaultProcessManager.prototype.get = function(pid) {
+ProcessManager.prototype.get = function(pid) {
 
   return this.processes[pid];
 
@@ -9352,7 +9397,7 @@ DefaultProcessManager.prototype.get = function(pid) {
  * Will throw an error if there is a process id conflict.
  *
  */
-DefaultProcessManager.prototype.getById = function(id) {
+ProcessManager.prototype.getById = function(id) {
   var found;
   var process;
   for (process in this.processes) {
@@ -9369,11 +9414,11 @@ DefaultProcessManager.prototype.getById = function(id) {
   return found;
 };
 
-DefaultProcessManager.prototype.filterByStatus = function(status) {
+ProcessManager.prototype.filterByStatus = function(status) {
   return this.filterBy('status', status);
 };
 
-DefaultProcessManager.prototype.filterBy = function(prop, value) {
+ProcessManager.prototype.filterBy = function(prop, value) {
 
   var id;
   var filtered = [];
@@ -9390,7 +9435,7 @@ DefaultProcessManager.prototype.filterBy = function(prop, value) {
 
 };
 
-module.exports = DefaultProcessManager;
+module.exports = ProcessManager;
 
 }).call(this,require("uojqOp"))
 },{"events":2,"uojqOp":5,"util":7,"uuid":43}],21:[function(require,module,exports){
@@ -9413,7 +9458,7 @@ function Queue() {
  * @public
  *
  */
-function DefaultQueueManager(dataHandler) {
+function QueueManager(dataHandler) {
 
   this.queues = {};
   this._shutdown    = false;
@@ -9438,11 +9483,11 @@ function DefaultQueueManager(dataHandler) {
   this.onData(dataHandler);
 }
 
-DefaultQueueManager.prototype.onData = function(handler) {
+QueueManager.prototype.onData = function(handler) {
   this.sendData = handler;
 };
 
-DefaultQueueManager.prototype.pounder = function() {
+QueueManager.prototype.pounder = function() {
 
   var self = this.self;
 
@@ -9474,7 +9519,7 @@ DefaultQueueManager.prototype.pounder = function() {
 
 };
 
-DefaultQueueManager.prototype.getQueue = function(id) {
+QueueManager.prototype.getQueue = function(id) {
 
   if (this.queues.hasOwnProperty(id)) {
     return this.queues[id];
@@ -9484,7 +9529,7 @@ DefaultQueueManager.prototype.getQueue = function(id) {
 
 };
 
-DefaultQueueManager.prototype.pound = function(id) {
+QueueManager.prototype.pound = function(id) {
 
   if (!id) {
     throw Error('no id!');
@@ -9502,7 +9547,7 @@ DefaultQueueManager.prototype.pound = function(id) {
 
 };
 
-DefaultQueueManager.prototype.get = function(id) {
+QueueManager.prototype.get = function(id) {
   return this.getQueue(id).queue;
 };
 
@@ -9514,7 +9559,7 @@ DefaultQueueManager.prototype.get = function(id) {
  * @param {Packet} p
  * @public
  */
-DefaultQueueManager.prototype.queue = function(id, p) {
+QueueManager.prototype.queue = function(id, p) {
 
   if (p.constructor.name !== 'Packet') {
     throw Error('not an instance of Packet');
@@ -9536,13 +9581,13 @@ DefaultQueueManager.prototype.queue = function(id, p) {
 
 };
 
-DefaultQueueManager.prototype.init = function(id) {
+QueueManager.prototype.init = function(id) {
   if (!this.queues.hasOwnProperty(id)) {
     this.queues[id] = new Queue();
   }
 };
 
-DefaultQueueManager.prototype.unshift = function(id, p) {
+QueueManager.prototype.unshift = function(id, p) {
 
   var queue = this.getQueue(id);
   queue.queue.unshift(p);
@@ -9556,7 +9601,7 @@ DefaultQueueManager.prototype.unshift = function(id, p) {
  * @param {id} id
  * @public
  */
-DefaultQueueManager.prototype.pick = function(id) {
+QueueManager.prototype.pick = function(id) {
   if (this.hasQueue(id)) {
     return this.queues[id].queue.shift();
   }
@@ -9569,15 +9614,15 @@ DefaultQueueManager.prototype.pick = function(id) {
  * @param {string} id
  * @public
  */
-DefaultQueueManager.prototype.hasQueue = function(id) {
+QueueManager.prototype.hasQueue = function(id) {
   return this.queues[id] && this.queues[id].queue.length > 0;
 };
 
-DefaultQueueManager.prototype.isManaged = function(id) {
+QueueManager.prototype.isManaged = function(id) {
   return this.queues.hasOwnProperty(id);
 };
 
-DefaultQueueManager.prototype.size = function(id) {
+QueueManager.prototype.size = function(id) {
   return this.getQueue(id).queue.length;
 };
 
@@ -9587,7 +9632,7 @@ DefaultQueueManager.prototype.size = function(id) {
  *
  * @public
  */
-DefaultQueueManager.prototype.reset = function(cb) {
+QueueManager.prototype.reset = function(cb) {
 
   var self = this;
   var retries;
@@ -9631,7 +9676,7 @@ DefaultQueueManager.prototype.reset = function(cb) {
 
 };
 
-DefaultQueueManager.prototype.isLocked = function(id) {
+QueueManager.prototype.isLocked = function(id) {
   // means whether it has queue length..
   if (!this.isManaged(id)) {
     return false;
@@ -9640,7 +9685,7 @@ DefaultQueueManager.prototype.isLocked = function(id) {
   return q.lock;
 };
 
-DefaultQueueManager.prototype.lock = function(id) {
+QueueManager.prototype.lock = function(id) {
   this.init(id);
 
   var q = this.getQueue(id);
@@ -9648,7 +9693,7 @@ DefaultQueueManager.prototype.lock = function(id) {
 
 };
 
-DefaultQueueManager.prototype.flushAll = function() {
+QueueManager.prototype.flushAll = function() {
   var id;
   for (id in this.queues) {
     if (this.queues.hasOwnProperty(id)) {
@@ -9657,7 +9702,7 @@ DefaultQueueManager.prototype.flushAll = function() {
   }
 };
 
-DefaultQueueManager.prototype.purgeAll = function() {
+QueueManager.prototype.purgeAll = function() {
   var id;
   for (id in this.queues) {
     if (this.queues.hasOwnProperty(id)) {
@@ -9666,13 +9711,13 @@ DefaultQueueManager.prototype.purgeAll = function() {
   }
 };
 
-DefaultQueueManager.prototype.purge = function(q) {
+QueueManager.prototype.purge = function(q) {
   while (q.queue.length) {
     this.drop('purge', q.queue.pop());
   }
 };
 
-DefaultQueueManager.prototype.unlockAll = function() {
+QueueManager.prototype.unlockAll = function() {
   var id;
   for (id in this.queues) {
     if (this.queues.hasOwnProperty(id)) {
@@ -9681,13 +9726,13 @@ DefaultQueueManager.prototype.unlockAll = function() {
   }
 };
 
-DefaultQueueManager.prototype.unlock = function(id) {
+QueueManager.prototype.unlock = function(id) {
   if (this.hasQueue(id)) {
     this.flush(id);
   }
 };
 
-DefaultQueueManager.prototype.flush = function(id) {
+QueueManager.prototype.flush = function(id) {
 
   var i;
   var q = this.getQueue(id);
@@ -9703,8 +9748,8 @@ DefaultQueueManager.prototype.flush = function(id) {
 };
 
 // not sure, maybe make only the ioHandler responsible for this?
-DefaultQueueManager.prototype.drop = function(type) {
-  console.warn('DefaultQueueManager: dropping packet: ', type, this.inQueue);
+QueueManager.prototype.drop = function(type) {
+  console.warn('QueueManager: dropping packet: ', type, this.inQueue);
 };
 
 /**
@@ -9727,7 +9772,7 @@ DefaultQueueManager.prototype.drop = function(type) {
  * }
  *
  */
-DefaultQueueManager.prototype.getQueues = function() {
+QueueManager.prototype.getQueues = function() {
 
   var id;
   var queued = {};
@@ -9741,7 +9786,7 @@ DefaultQueueManager.prototype.getQueues = function() {
   return queued;
 };
 
-module.exports = DefaultQueueManager;
+module.exports = QueueManager;
 
 }).call(this,require("uojqOp"))
 },{"uojqOp":5,"util":7}],22:[function(require,module,exports){
@@ -12643,228 +12688,6 @@ module.exports={
 }
 
 },{}],47:[function(require,module,exports){
-'use strict';
-
-/**
- *
- * Ok, this should be a general listener interface.
- *
- * One who will use it is the Actor.
- * But I want to be able to do the same for e.g. Loader.
- *
- * They will all be in chix-monitor-*
- *
- * npmlog =  Listener(instance, options);
- *
- * The return is just in case you want to do other stuff.
- *
- * e.g. fbpx wants to add this to npmlog:
- *
- * Logger.level = program.verbose ? 'verbose' : program.debug;
- *
- */
-// function NpmLogActorMonitor(actor, opts) {
-module.exports = function NpmLogActorMonitor(Logger, actor) {
-
-   // TODO: just make an NpmLogIOMonitor.
-   var ioHandler = actor.ioHandler;
-
-   actor.on('removeLink', function(event) {
-     Logger.debug(
-       event.node ? event.node.identifier : 'Some Actor',
-       'removed link'
-     );
-   });
-
-   // Ok emiting each and every output I don't like for the IOHandler.
-   // but whatever can change it later.
-   ioHandler.on('output', function(data) {
-
-     // I don't like this data.out.port thing vs data.port
-     switch(data.port) {
-
-        case ':plug':
-         Logger.debug(
-           data.node.identifier,
-           'port %s plugged (%d)',
-           data.out.read().port,
-           data.out.read().connections);
-        break;
-
-        case ':unplug':
-         Logger.debug(
-           data.node.identifier,
-           'port %s unplugged (%d)',
-           data.out.read().port,
-           data.out.read().connections);
-        break;
-
-        case ':portFill':
-         Logger.info(
-           data.node.identifier,
-           'port %s filled with data',
-           data.out.read().port);
-        break;
-
-        case ':contextUpdate':
-         Logger.info(
-           data.node.identifier,
-           'port %s filled with context',
-           data.out.read().port);
-        break;
-
-        case ':inputValidated':
-          Logger.debug(data.node.identifier, 'input validated');
-        break;
-
-        case ':start':
-          Logger.info(data.node.identifier, 'START');
-        break;
-
-        case ':freePort':
-          Logger.debug(data.node.identifier, 'free port %s', data.out.read().port);
-        break;
-
-/*
-       case ':queue':
-         Logger.debug(
-           data.node,
-           'queue: %s',
-           data.port
-         );
-       break;
-*/
-
-       case ':openPort':
-         Logger.info(
-           data.node.identifier,
-           'opened port %s (%d)',
-           data.out.read().port,
-           data.out.read().connections
-           );
-       break;
-
-       case ':closePort':
-         Logger.info(
-           data.node.identifier,
-           'closed port %s',
-           data.out.read().port
-           );
-       break;
-
-       case ':index':
-         Logger.info(
-           data.node.identifier,
-           '[%s] set on port `%s`',
-           data.out.read().index,
-           data.out.read().port
-           );
-       break;
-
-       case ':nodeComplete':
-         // console.log('nodeComplete', data);
-         Logger.info(data.node.identifier, 'completed');
-       break;
-
-       case ':portReject':
-         Logger.debug(
-           data.node.identifier,
-           'rejected input on port %s',
-           data.out.read().port
-         );
-       break;
-
-       case ':inputRequired':
-         Logger.error(
-           data.node.identifier,
-           'input required on port %s',
-           data.out.read().port);
-       break;
-
-       case ':error':
-         Logger.error(
-           data.node.identifier,
-           data.out.read().msg
-         );
-       break;
-
-       case ':nodeTimeout':
-         Logger.error(
-           data.node.identifier,
-           'node timeout'
-         );
-       break;
-
-       case ':executed':
-         Logger.info(
-           data.node.identifier,
-           'EXECUTED'
-         );
-       break;
-
-       case ':inputTimeout':
-         Logger.info(
-           data.node.identifier,
-           'input timeout, got %s need %s',
-           Object.keys(data.node.input).join(', '),
-           data.node.openPorts.join(', '));
-       break;
-
-       default:
-         // TODO: if the above misses a system port it will be reported
-         //       as default normal output.
-         Logger.info(data.node.identifier, 'output on port %s', data.port);
-       break;
-
-     }
-
-   });
-
-   return Logger;
-
-};
-
-},{}],48:[function(require,module,exports){
-'use strict';
-
-/**
- *
- * NpmLog monitor for the Loader
- *
- */
-module.exports = function NpmLogLoaderMonitor(Logger, loader) {
-
-  loader.on('loadUrl', function(data) {
-    Logger.info( 'loadUrl', data.url);
-  });
-
-  loader.on('loadFile', function(data) {
-    Logger.info( 'loadFile', data.path);
-  });
-
-  loader.on('loadCache', function(data) {
-    Logger.debug( 'cache', 'loaded cache file %s', data.file);
-  });
-
-  loader.on('purgeCache', function(data) {
-    Logger.debug( 'cache', 'purged cache file %s', data.file);
-  });
-
-  loader.on('writeCache', function(data) {
-    Logger.debug( 'cache', 'wrote cache file %s', data.file);
-  });
-
-  return Logger;
-
-};
-
-},{}],"chix-monitor-npmlog":[function(require,module,exports){
-module.exports=require('HNG52E');
-},{}],"HNG52E":[function(require,module,exports){
-exports.Actor = require('./lib/actor');
-exports.Loader = require('./lib/loader');
-
-},{"./lib/actor":47,"./lib/loader":48}],51:[function(require,module,exports){
 "use strict";
 /*globals Handlebars: true */
 var Handlebars = require("./handlebars.runtime")["default"];
@@ -12904,7 +12727,7 @@ Handlebars.create = create;
 Handlebars['default'] = Handlebars;
 
 exports["default"] = Handlebars;
-},{"./handlebars.runtime":52,"./handlebars/compiler/ast":54,"./handlebars/compiler/base":55,"./handlebars/compiler/compiler":56,"./handlebars/compiler/javascript-compiler":58}],52:[function(require,module,exports){
+},{"./handlebars.runtime":48,"./handlebars/compiler/ast":50,"./handlebars/compiler/base":51,"./handlebars/compiler/compiler":52,"./handlebars/compiler/javascript-compiler":54}],48:[function(require,module,exports){
 "use strict";
 /*globals Handlebars: true */
 var base = require("./handlebars/base");
@@ -12940,7 +12763,7 @@ Handlebars.create = create;
 Handlebars['default'] = Handlebars;
 
 exports["default"] = Handlebars;
-},{"./handlebars/base":53,"./handlebars/exception":62,"./handlebars/runtime":63,"./handlebars/safe-string":64,"./handlebars/utils":65}],53:[function(require,module,exports){
+},{"./handlebars/base":49,"./handlebars/exception":58,"./handlebars/runtime":59,"./handlebars/safe-string":60,"./handlebars/utils":61}],49:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -13172,7 +12995,7 @@ var createFrame = function(object) {
   return frame;
 };
 exports.createFrame = createFrame;
-},{"./exception":62,"./utils":65}],54:[function(require,module,exports){
+},{"./exception":58,"./utils":61}],50:[function(require,module,exports){
 "use strict";
 var Exception = require("../exception")["default"];
 
@@ -13387,7 +13210,7 @@ var AST = {
 // Must be exported as an object rather than the root of the module as the jison lexer
 // most modify the object to operate properly.
 exports["default"] = AST;
-},{"../exception":62}],55:[function(require,module,exports){
+},{"../exception":58}],51:[function(require,module,exports){
 "use strict";
 var parser = require("./parser")["default"];
 var AST = require("./ast")["default"];
@@ -13409,7 +13232,7 @@ function parse(input) {
 }
 
 exports.parse = parse;
-},{"../utils":65,"./ast":54,"./helpers":57,"./parser":59}],56:[function(require,module,exports){
+},{"../utils":61,"./ast":50,"./helpers":53,"./parser":55}],52:[function(require,module,exports){
 "use strict";
 var Exception = require("../exception")["default"];
 var isArray = require("../utils").isArray;
@@ -13862,7 +13685,7 @@ exports.compile = compile;function argEquals(a, b) {
     return true;
   }
 }
-},{"../exception":62,"../utils":65}],57:[function(require,module,exports){
+},{"../exception":58,"../utils":61}],53:[function(require,module,exports){
 "use strict";
 var Exception = require("../exception")["default"];
 
@@ -14050,7 +13873,7 @@ function omitLeft(statements, i, multiple) {
   current.leftStripped = current.string !== original;
   return current.leftStripped;
 }
-},{"../exception":62}],58:[function(require,module,exports){
+},{"../exception":58}],54:[function(require,module,exports){
 "use strict";
 var COMPILER_REVISION = require("../base").COMPILER_REVISION;
 var REVISION_CHANGES = require("../base").REVISION_CHANGES;
@@ -15015,7 +14838,7 @@ JavaScriptCompiler.isValidJavaScriptVariableName = function(name) {
 };
 
 exports["default"] = JavaScriptCompiler;
-},{"../base":53,"../exception":62}],59:[function(require,module,exports){
+},{"../base":49,"../exception":58}],55:[function(require,module,exports){
 "use strict";
 /* jshint ignore:start */
 /* istanbul ignore next */
@@ -15516,7 +15339,7 @@ function Parser () { this.yy = {}; }Parser.prototype = parser;parser.Parser = Pa
 return new Parser;
 })();exports["default"] = handlebars;
 /* jshint ignore:end */
-},{}],60:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 "use strict";
 var Visitor = require("./visitor")["default"];
 
@@ -15658,7 +15481,7 @@ PrintVisitor.prototype.content = function(content) {
 PrintVisitor.prototype.comment = function(comment) {
   return this.pad("{{! '" + comment.comment + "' }}");
 };
-},{"./visitor":61}],61:[function(require,module,exports){
+},{"./visitor":57}],57:[function(require,module,exports){
 "use strict";
 function Visitor() {}
 
@@ -15671,7 +15494,7 @@ Visitor.prototype = {
 };
 
 exports["default"] = Visitor;
-},{}],62:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 "use strict";
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -15700,7 +15523,7 @@ function Exception(message, node) {
 Exception.prototype = new Error();
 
 exports["default"] = Exception;
-},{}],63:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -15894,7 +15717,7 @@ exports.noop = noop;function initData(context, data) {
   }
   return data;
 }
-},{"./base":53,"./exception":62,"./utils":65}],64:[function(require,module,exports){
+},{"./base":49,"./exception":58,"./utils":61}],60:[function(require,module,exports){
 "use strict";
 // Build out our basic SafeString type
 function SafeString(string) {
@@ -15906,7 +15729,7 @@ SafeString.prototype.toString = function() {
 };
 
 exports["default"] = SafeString;
-},{}],65:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 "use strict";
 /*jshint -W004 */
 var SafeString = require("./safe-string")["default"];
@@ -15995,7 +15818,7 @@ exports.isEmpty = isEmpty;function appendContextPath(contextPath, id) {
 }
 
 exports.appendContextPath = appendContextPath;
-},{"./safe-string":64}],"handlebars":[function(require,module,exports){
+},{"./safe-string":60}],"handlebars":[function(require,module,exports){
 module.exports=require('7MzhPZ');
 },{}],"7MzhPZ":[function(require,module,exports){
 // USAGE:
@@ -16025,7 +15848,7 @@ if (typeof require !== 'undefined' && require.extensions) {
   require.extensions[".hbs"] = extension;
 }
 
-},{"../dist/cjs/handlebars":51,"../dist/cjs/handlebars/compiler/printer":60,"../dist/cjs/handlebars/compiler/visitor":61,"fs":1}],"hark":[function(require,module,exports){
+},{"../dist/cjs/handlebars":47,"../dist/cjs/handlebars/compiler/printer":56,"../dist/cjs/handlebars/compiler/visitor":57,"fs":1}],"hark":[function(require,module,exports){
 module.exports=require('QD3VMw');
 },{}],"QD3VMw":[function(require,module,exports){
 var WildEmitter = require('wildemitter');
@@ -16034,7 +15857,7 @@ function getMaxVolume (analyser, fftBins) {
   var maxVolume = -Infinity;
   analyser.getFloatFrequencyData(fftBins);
 
-  for(var i=0, ii=fftBins.length; i < ii; i++) {
+  for(var i=4, ii=fftBins.length; i < ii; i++) {
     if (fftBins[i] > maxVolume && fftBins[i] < 0) {
       maxVolume = fftBins[i];
     }
@@ -16056,10 +15879,11 @@ module.exports = function(stream, options) {
 
   //Config
   var options = options || {},
-      smoothing = (options.smoothing || 0.5),
-      interval = (options.interval || 100),
+      smoothing = (options.smoothing || 0.1),
+      interval = (options.interval || 50),
       threshold = options.threshold,
       play = options.play,
+      history = options.history || 10,
       running = true;
 
   //Setup Audio Context
@@ -16074,15 +15898,15 @@ module.exports = function(stream, options) {
   fftBins = new Float32Array(analyser.fftSize);
 
   if (stream.jquery) stream = stream[0];
-  if (stream instanceof HTMLAudioElement) {
+  if (stream instanceof HTMLAudioElement || stream instanceof HTMLVideoElement) {
     //Audio Tag
     sourceNode = audioContext.createMediaElementSource(stream);
     if (typeof play === 'undefined') play = true;
-    threshold = threshold || -65;
+    threshold = threshold || -50;
   } else {
     //WebRTC Stream
     sourceNode = audioContext.createMediaStreamSource(stream);
-    threshold = threshold || -45;
+    threshold = threshold || -50;
   }
 
   sourceNode.connect(analyser);
@@ -16106,6 +15930,10 @@ module.exports = function(stream, options) {
       harker.emit('stopped_speaking');
     }
   };
+  harker.speakingHistory = [];
+  for (var i = 0; i < history; i++) {
+      harker.speakingHistory.push(0);
+  }
 
   // Poll the analyser node to determine if speaking
   // and emit events if changed
@@ -16121,17 +15949,27 @@ module.exports = function(stream, options) {
 
       harker.emit('volume_change', currentVolume, threshold);
 
-      if (currentVolume > threshold) {
-        if (!harker.speaking) {
+      var history = 0;
+      if (currentVolume > threshold && !harker.speaking) {
+        // trigger quickly, short history
+        for (var i = harker.speakingHistory.length - 3; i < harker.speakingHistory.length; i++) {
+          history += harker.speakingHistory[i];
+        }
+        if (history >= 2) {
           harker.speaking = true;
           harker.emit('speaking');
         }
-      } else {
-        if (harker.speaking) {
+      } else if (currentVolume < threshold && harker.speaking) {
+        for (var i = 0; i < harker.speakingHistory.length; i++) {
+          history += harker.speakingHistory[i];
+        }
+        if (history == 0) {
           harker.speaking = false;
           harker.emit('stopped_speaking');
         }
       }
+      harker.speakingHistory.shift();
+      harker.speakingHistory.push(0 + (currentVolume > threshold));
 
       looper();
     }, interval);
@@ -16142,7 +15980,7 @@ module.exports = function(stream, options) {
   return harker;
 }
 
-},{"wildemitter":70}],70:[function(require,module,exports){
+},{"wildemitter":66}],66:[function(require,module,exports){
 /*
 WildEmitter.js is a slim little event emitter by @henrikjoreteg largely based 
 on @visionmedia's Emitter from UI Kit.
@@ -16171,7 +16009,7 @@ function WildEmitter() {
 // Listen on the given `event` with `fn`. Store a group name if present.
 WildEmitter.prototype.on = function (event, groupName, fn) {
     var hasGroup = (arguments.length === 3),
-        group = hasGroup ? arguments[1] : undefined, 
+        group = hasGroup ? arguments[1] : undefined,
         func = hasGroup ? arguments[2] : arguments[1];
     func._groupName = group;
     (this.callbacks[event] = this.callbacks[event] || []).push(func);
@@ -16183,7 +16021,7 @@ WildEmitter.prototype.on = function (event, groupName, fn) {
 WildEmitter.prototype.once = function (event, groupName, fn) {
     var self = this,
         hasGroup = (arguments.length === 3),
-        group = hasGroup ? arguments[1] : undefined, 
+        group = hasGroup ? arguments[1] : undefined,
         func = hasGroup ? arguments[2] : arguments[1];
     function on() {
         self.off(event, on);
@@ -16216,7 +16054,7 @@ WildEmitter.prototype.releaseGroup = function (groupName) {
 WildEmitter.prototype.off = function (event, fn) {
     var callbacks = this.callbacks[event],
         i;
-    
+
     if (!callbacks) return this;
 
     // remove all handlers
@@ -16231,7 +16069,7 @@ WildEmitter.prototype.off = function (event, fn) {
     return this;
 };
 
-// Emit `event` with the given args.
+/// Emit `event` with the given args.
 // also calls any `*` handlers
 WildEmitter.prototype.emit = function (event) {
     var args = [].slice.call(arguments, 1),
@@ -16239,12 +16077,14 @@ WildEmitter.prototype.emit = function (event) {
         specialCallbacks = this.getWildcardCallbacks(event),
         i,
         len,
-        item;
+        item,
+        listeners;
 
     if (callbacks) {
-        for (i = 0, len = callbacks.length; i < len; ++i) {
-            if (callbacks[i]) {
-                callbacks[i].apply(this, args);
+        listeners = callbacks.slice();
+        for (i = 0, len = listeners.length; i < len; ++i) {
+            if (listeners[i]) {
+                listeners[i].apply(this, args);
             } else {
                 break;
             }
@@ -16252,9 +16092,11 @@ WildEmitter.prototype.emit = function (event) {
     }
 
     if (specialCallbacks) {
-        for (i = 0, len = specialCallbacks.length; i < len; ++i) {
-            if (specialCallbacks[i]) {
-                specialCallbacks[i].apply(this, [event].concat(args));
+        len = specialCallbacks.length;
+        listeners = specialCallbacks.slice();
+        for (i = 0, len = listeners.length; i < len; ++i) {
+            if (listeners[i]) {
+                listeners[i].apply(this, [event].concat(args));
             } else {
                 break;
             }
@@ -16272,7 +16114,7 @@ WildEmitter.prototype.getWildcardCallbacks = function (eventName) {
 
     for (item in this.callbacks) {
         split = item.split('*');
-        if (item === '*' || (split.length === 2 && eventName.slice(0, split[1].length) === split[1])) {
+        if (item === '*' || (split.length === 2 && eventName.slice(0, split[0].length) === split[0])) {
             result = result.concat(this.callbacks[item]);
         }
     }
@@ -16287,7 +16129,7 @@ var Loader = function() {
   // will be replaced with the json.
   this.dependencies = {"npm":{"handlebars":"latest","hark":"0.x.x"}};
   //this.nodes = ;
-  this.nodeDefinitions = {"https://serve-chix.rhcloud.com/nodes/{ns}/{name}":{"template":{"handlebars":{"_id":"52ea878d1905561c7aa3bdbc","name":"handlebars","ns":"template","description":"Handlebars Template engine","phrases":{"active":"Compiling handlebars template"},"ports":{"input":{"body":{"type":"string","format":"html","title":"Template body","description":"The body of the handlebars template","required":true},"vars":{"type":"object","title":"Input variables","description":"the input variables for this template","default":{}},"handlebars":{"type":"function","title":"Handlebars","default":null}},"output":{"out":{"title":"HTML","type":"string"}}},"dependencies":{"npm":{"handlebars":"latest"}},"fn":"var hb = input.handlebars || handlebars;\nvar tpl = hb.compile(input.body);\noutput = {\n  out: tpl(input.vars)\n}\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"}},"dom":{"setHtml":{"_id":"52be32d46a14bb6fbd924a24","name":"setHtml","ns":"dom","description":"dom setHtml","async":true,"phrases":{"active":"Adding html"},"ports":{"input":{"element":{"type":"HTMLElement","title":"Dom Element"},"html":{"type":"string","format":"html","title":"html","async":true}},"output":{"element":{"type":"HTMLElement","title":"Dom Element"}}},"fn":"on.input.html = function(data) {\n  input.element.innerHTML = data;\n  output({ element: input.element });\n};\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"},"querySelector":{"_id":"527299bb30b8af4b8910216b","name":"querySelector","ns":"dom","title":"querySelector","description":"[Document query selector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector)","expose":["document"],"phrases":{"active":"Gathering elements matching criteria: {{input.selector}}"},"ports":{"input":{"element":{"title":"Element","type":"HTMLElement","default":null},"selector":{"title":"Selector","type":"string"}},"output":{"element":{"title":"Element","type":"HTMLElement"},"selection":{"title":"Selection","type":"HTMLElement"},"error":{"title":"Error","type":"Error"}}},"fn":"var el = input.element ? input.element : document;\noutput = {\n  element: el\n};\n\nvar selection = el.querySelector(input.selector);\nif(selection) {\n  output.selection = selection;\n} else {\n  output.error = Error('Selector ' + input.selector + ' did not match');\n}\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"},"show":{"_id":"52be32d46a14bb6fbd924a26","name":"show","ns":"dom","async":true,"description":"dom show","phrases":{"active":"Showing"},"ports":{"input":{"element":{"type":"HTMLElement","title":"Dom Element","async":true}},"output":{"element":{"type":"HTMLElement","title":"Dom Element"}}},"fn":"on.input.element = function(data) {\n  data.style.display = 'block';\n  output({ element: data });\n};\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"},"hide":{"_id":"52be32d46a14bb6fbd924a22","name":"hide","ns":"dom","async":true,"description":"dom hide","phrases":{"active":"hideing"},"ports":{"input":{"element":{"type":"HTMLElement","title":"Dom Element","async":true}},"output":{"element":{"type":"HTMLElement","title":"Dom Element"}}},"fn":"on.input.element = function(data) {\n  data.style.display = 'none';\n  output({ element: data });\n};\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"}},"webrtc":{"hark":{"_id":"52ef363fcf8e1bab142d53c4","name":"hark","ns":"webrtc","description":"Hark","phrases":{"active":"Harking"},"ports":{"input":{"stream":{"title":"Stream","type":"HTMLElement","description":"e.g. document.querySelector('audio')","required":true}},"output":{"stream":{"title":"Stream","type":"HTMLElement"},"speaking":{"title":"Speaking","type":"HTMLElement"},"silence":{"title":"Silence","type":"HTMLelement"},"volume":{"title":"volume","type":"number"},"threshold":{"title":"Treshold","type":"number"}}},"dependencies":{"npm":{"hark":"0.x.x"}},"fn":"var speechEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: input.stream\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      threshold: threshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      silence: input.stream\n    });\n  });\n\n};\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"}},"console":{"log":{"_id":"52645993df5da0102500004e","name":"log","ns":"console","description":"Console log","async":true,"phrases":{"active":"Logging to console"},"ports":{"input":{"msg":{"type":"any","title":"Log message","description":"Logs a message to the console","async":true,"required":true}},"output":{"out":{"type":"any","title":"Log message"}}},"fn":"on.input.msg = function() {\n  console.log(data);\n  output( { out: data });\n}\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"}}}};
+  this.nodeDefinitions = {"https://serve-chix.rhcloud.com/nodes/{ns}/{name}":{"template":{"handlebars":{"_id":"52ea878d1905561c7aa3bdbc","name":"handlebars","ns":"template","description":"Handlebars Template engine","phrases":{"active":"Compiling handlebars template"},"ports":{"input":{"body":{"type":"string","format":"html","title":"Template body","description":"The body of the handlebars template","required":true},"vars":{"type":"object","title":"Input variables","description":"the input variables for this template","default":{}},"handlebars":{"type":"function","title":"Handlebars","default":null}},"output":{"out":{"title":"HTML","type":"string"}}},"dependencies":{"npm":{"handlebars":"latest"}},"fn":"var hb = input.handlebars || handlebars;\nvar tpl = hb.compile(input.body);\noutput = {\n  out: tpl(input.vars)\n}\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}","title":"MlkView"}},"dom":{"setHtml":{"_id":"52be32d46a14bb6fbd924a24","name":"setHtml","ns":"dom","description":"dom setHtml","async":true,"phrases":{"active":"Adding html"},"ports":{"input":{"element":{"type":"HTMLElement","title":"Dom Element"},"html":{"type":"string","format":"html","title":"html","async":true}},"output":{"element":{"type":"HTMLElement","title":"Dom Element"}}},"fn":"on.input.html = function(data) {\n  input.element.innerHTML = data;\n  output({ element: input.element });\n};\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}","title":"MlkViewUpdate"},"querySelector":{"_id":"527299bb30b8af4b8910216b","name":"querySelector","ns":"dom","title":"SpeakingEl","description":"[Document query selector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector)","expose":["document"],"phrases":{"active":"Gathering elements matching criteria: {{input.selector}}"},"ports":{"input":{"element":{"title":"Element","type":"HTMLElement","default":null},"selector":{"title":"Selector","type":"string"}},"output":{"element":{"title":"Element","type":"HTMLElement"},"selection":{"title":"Selection","type":"HTMLElement"},"error":{"title":"Error","type":"Error"}}},"fn":"var el = input.element ? input.element : document;\noutput = {\n  element: el\n};\n\nvar selection = el.querySelector(input.selector);\nif(selection) {\n  output.selection = selection;\n} else {\n  output.error = Error('Selector ' + input.selector + ' did not match');\n}\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"},"show":{"_id":"52be32d46a14bb6fbd924a26","name":"show","ns":"dom","async":true,"description":"dom show","phrases":{"active":"Showing"},"ports":{"input":{"element":{"type":"HTMLElement","title":"Dom Element","async":true}},"output":{"element":{"type":"HTMLElement","title":"Dom Element"}}},"fn":"on.input.element = function(data) {\n  data.style.display = 'block';\n  output({ element: data });\n};\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}","title":"Speaking"},"hide":{"_id":"52be32d46a14bb6fbd924a22","name":"hide","ns":"dom","async":true,"description":"dom hide","phrases":{"active":"hideing"},"ports":{"input":{"element":{"type":"HTMLElement","title":"Dom Element","async":true}},"output":{"element":{"type":"HTMLElement","title":"Dom Element"}}},"fn":"on.input.element = function(data) {\n  data.style.display = 'none';\n  output({ element: data });\n};\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}","title":"Silent"}},"webrtc":{"hark":{"_id":"52ef363fcf8e1bab142d53c4","name":"hark","ns":"webrtc","description":"Hark","phrases":{"active":"Harking"},"ports":{"input":{"stream":{"title":"Stream","type":"HTMLElement","description":"e.g. document.querySelector('audio')","required":true}},"output":{"stream":{"title":"Stream","type":"HTMLElement"},"speaking":{"title":"Speaking","type":"HTMLElement"},"silence":{"title":"Silence","type":"HTMLelement"},"volume":{"title":"volume","type":"number"},"threshold":{"title":"Treshold","type":"number"}}},"dependencies":{"npm":{"hark":"0.x.x"}},"fn":"var speechEvents = hark(input.stream);\n\noutput = function (cb) {\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: input.stream\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      threshold: threshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      silence: input.stream\n    });\n  });\n\n};\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}","title":"WebrtcHark"}},"console":{"log":{"_id":"52645993df5da0102500004e","name":"log","ns":"console","description":"Console log","async":true,"phrases":{"active":"Logging to console"},"ports":{"input":{"msg":{"type":"any","title":"Log message","description":"Logs a message to the console","async":true,"required":true}},"output":{"out":{"type":"any","title":"Log message"}}},"fn":"on.input.msg = function() {\n  console.log(data);\n  output( { out: data });\n}\n","provider":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"}}}};
 
 };
 
@@ -16310,18 +16152,16 @@ Loader.prototype.getNodeDefinition = function(node) {
 var Flow = require('chix-flow').Flow;
 var loader = new Loader();
 
-var map = {"id":"782ddd5e-405b-43e4-b9e2-232d247672a5","type":"flow","links":[{"source":{"id":"BodyEl","port":"selection"},"target":{"id":"MlkViewUpdate","port":"element"},"metadata":{"title":"BodyEl selection -> element MlkViewUpdate"}},{"source":{"id":"SpeakingEl","port":"selection"},"target":{"id":"Speaking","port":"element","setting":{"persist":true}},"metadata":{"title":"SpeakingEl selection -> element Speaking"}},{"source":{"id":"SpeakingEl","port":"selection"},"target":{"id":"Silent","port":"element","setting":{"persist":true}},"metadata":{"title":"SpeakingEl selection -> element Silent"}},{"source":{"id":"MlkView","port":"out"},"target":{"id":"MlkViewUpdate","port":"html"},"metadata":{"title":"MlkView out -> html MlkViewUpdate"}},{"source":{"id":"MlkViewUpdate","port":"element"},"target":{"id":"AudioEl","port":":start"},"metadata":{"title":"MlkViewUpdate element -> :start AudioEl"}},{"source":{"id":"MlkViewUpdate","port":"element"},"target":{"id":"SpeakingEl","port":":start"},"metadata":{"title":"MlkViewUpdate element -> :start SpeakingEl"}},{"source":{"id":"AudioEl","port":"selection"},"target":{"id":"WebrtcHark","port":"stream"},"metadata":{"title":"AudioEl selection -> stream WebrtcHark"}},{"source":{"id":"WebrtcHark","port":"speaking"},"target":{"id":"Speaking","port":":start"},"metadata":{"title":"WebrtcHark speaking -> :start Speaking"}},{"source":{"id":"WebrtcHark","port":"speaking"},"target":{"id":"SpeakingLog","port":":start"},"metadata":{"title":"WebrtcHark speaking -> :start SpeakingLog"}},{"source":{"id":"WebrtcHark","port":"silence"},"target":{"id":"Silent","port":":start"},"metadata":{"title":"WebrtcHark silence -> :start Silent"}},{"source":{"id":"WebrtcHark","port":"silence"},"target":{"id":"SilenceLog","port":":start"},"metadata":{"title":"WebrtcHark silence -> :start SilenceLog"}}],"nodes":[{"id":"MlkView","title":"MlkView","ns":"template","name":"handlebars"},{"id":"MlkViewUpdate","title":"MlkViewUpdate","ns":"dom","name":"setHtml"},{"id":"AudioEl","title":"AudioEl","ns":"dom","name":"querySelector"},{"id":"BodyEl","title":"BodyEl","ns":"dom","name":"querySelector"},{"id":"SpeakingEl","title":"SpeakingEl","ns":"dom","name":"querySelector"},{"id":"Speaking","title":"Speaking","ns":"dom","name":"show"},{"id":"Silent","title":"Silent","ns":"dom","name":"hide"},{"id":"WebrtcHark","title":"WebrtcHark","ns":"webrtc","name":"hark"},{"id":"SpeakingLog","title":"SpeakingLog","ns":"console","name":"log","context":{"msg":"Silence! I'm speaking"}},{"id":"SilenceLog","title":"SilenceLog","ns":"console","name":"log","context":{"msg":"I'm silent"}}],"title":"MLK","providers":{"@":{"url":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"}}};
+var map = {"id":"17658779-a0e2-45d9-b3b5-44b354891e4b","type":"flow","links":[{"source":{"id":"BodyEl","port":"selection"},"target":{"id":"MlkViewUpdate","port":"element"},"metadata":{"title":"BodyEl selection -> element MlkViewUpdate"}},{"source":{"id":"SpeakingEl","port":"selection"},"target":{"id":"Speaking","port":"element","setting":{"persist":true}},"metadata":{"title":"SpeakingEl selection -> element Speaking"}},{"source":{"id":"SpeakingEl","port":"selection"},"target":{"id":"Silent","port":"element","setting":{"persist":true}},"metadata":{"title":"SpeakingEl selection -> element Silent"}},{"source":{"id":"MlkView","port":"out"},"target":{"id":"MlkViewUpdate","port":"html"},"metadata":{"title":"MlkView out -> html MlkViewUpdate"}},{"source":{"id":"MlkViewUpdate","port":"element"},"target":{"id":"AudioEl","port":":start"},"metadata":{"title":"MlkViewUpdate element -> :start AudioEl"}},{"source":{"id":"MlkViewUpdate","port":"element"},"target":{"id":"SpeakingEl","port":":start"},"metadata":{"title":"MlkViewUpdate element -> :start SpeakingEl"}},{"source":{"id":"AudioEl","port":"selection"},"target":{"id":"WebrtcHark","port":"stream"},"metadata":{"title":"AudioEl selection -> stream WebrtcHark"}},{"source":{"id":"WebrtcHark","port":"speaking"},"target":{"id":"Speaking","port":":start"},"metadata":{"title":"WebrtcHark speaking -> :start Speaking"}},{"source":{"id":"WebrtcHark","port":"speaking"},"target":{"id":"SpeakingLog","port":":start"},"metadata":{"title":"WebrtcHark speaking -> :start SpeakingLog"}},{"source":{"id":"WebrtcHark","port":"silence"},"target":{"id":"Silent","port":":start"},"metadata":{"title":"WebrtcHark silence -> :start Silent"}},{"source":{"id":"WebrtcHark","port":"silence"},"target":{"id":"SilenceLog","port":":start"},"metadata":{"title":"WebrtcHark silence -> :start SilenceLog"}}],"nodes":[{"id":"MlkView","title":"MlkView","ns":"template","name":"handlebars"},{"id":"MlkViewUpdate","title":"MlkViewUpdate","ns":"dom","name":"setHtml"},{"id":"AudioEl","title":"AudioEl","ns":"dom","name":"querySelector"},{"id":"BodyEl","title":"BodyEl","ns":"dom","name":"querySelector"},{"id":"SpeakingEl","title":"SpeakingEl","ns":"dom","name":"querySelector"},{"id":"Speaking","title":"Speaking","ns":"dom","name":"show"},{"id":"Silent","title":"Silent","ns":"dom","name":"hide"},{"id":"WebrtcHark","title":"WebrtcHark","ns":"webrtc","name":"hark"},{"id":"SpeakingLog","title":"SpeakingLog","ns":"console","name":"log","context":{"msg":"Silence! I'm speaking"}},{"id":"SilenceLog","title":"SilenceLog","ns":"console","name":"log","context":{"msg":"I'm silent"}}],"title":"MLK","providers":{"@":{"url":"https://serve-chix.rhcloud.com/nodes/{ns}/{name}"}}};
 
 var actor;
 window.Actor = actor = Flow.create(map, loader);
 
-var monitor = require('chix-monitor-npmlog').Actor;
-monitor(console, actor);
 
 function onDeviceReady() {
 actor.run();
 actor.push();
-actor.sendIIPs([{"source":{"id":"782ddd5e-405b-43e4-b9e2-232d247672a5","port":":iip"},"target":{"id":"MlkView","port":"body"},"metadata":{"title":"MLK :iip -> body MlkView"},"data":"<div class=\"panel panel-warning\">\n  <div class=\"panel-heading\">\n    <h3 class=\"panel-title\">{{title}}</h3>\n  </div>\n  <div class=\"panel-body\">\n    <div class=\"container-fluid\">\n      <div class=\"row\">\n        <div class=\"col-md-4\">\n          <img class=\"img-circle\" src=\"mlk.png\" />\n        </div>\n        <div class=\"col-md-4\">\n          <audio controls autoplay>\n            <source src=\"ihaveadream.mp3\" type=\"audio/mpeg\"/>\n          </audio>\n          <hr />\n          <button type=\"button\" id=\"mlkSpeaking\" class=\"btn btn-warning\" style=\"display:none\">Mlk is Speaking</button>\n        </div>\n        <div class=\"col-md-4\">\n          <img src=\"mlk.svg\" class=\"img-rounded\" style=\"width: 100%\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n"},{"source":{"id":"782ddd5e-405b-43e4-b9e2-232d247672a5","port":":iip"},"target":{"id":"MlkView","port":"vars"},"metadata":{"title":"MLK :iip -> vars MlkView"},"data":{"title":"MLK FBP"}},{"source":{"id":"782ddd5e-405b-43e4-b9e2-232d247672a5","port":":iip"},"target":{"id":"AudioEl","port":"selector"},"metadata":{"title":"MLK :iip -> selector AudioEl"},"data":"audio"},{"source":{"id":"782ddd5e-405b-43e4-b9e2-232d247672a5","port":":iip"},"target":{"id":"BodyEl","port":"selector"},"metadata":{"title":"MLK :iip -> selector BodyEl"},"data":"body"},{"source":{"id":"782ddd5e-405b-43e4-b9e2-232d247672a5","port":":iip"},"target":{"id":"SpeakingEl","port":"selector"},"metadata":{"title":"MLK :iip -> selector SpeakingEl"},"data":"#mlkSpeaking"}]);
+actor.sendIIPs([{"source":{"id":"17658779-a0e2-45d9-b3b5-44b354891e4b","port":":iip"},"target":{"id":"MlkView","port":"body"},"metadata":{"title":"MLK :iip -> body MlkView"},"data":"<div class=\"panel panel-warning\">\n  <div class=\"panel-heading\">\n    <h3 class=\"panel-title\">{{title}} - yoooo</h3>\n  </div>\n  <div class=\"panel-body\">\n    <div class=\"container-fluid\">\n      <div class=\"row\">\n        <div class=\"col-md-4\">\n          <img class=\"img-circle\" src=\"mlk.png\" />\n        </div>\n        <div class=\"col-md-4\">\n          <audio controls autoplay>\n            <source src=\"ihaveadream.mp3\" type=\"audio/mpeg\"/>\n          </audio>\n          <hr />\n          <button type=\"button\" id=\"mlkSpeaking\" class=\"btn btn-warning\" style=\"display:none\">Mlk is Speaking</button>\n        </div>\n        <div class=\"col-md-4\">\n          <img src=\"mlk.svg\" class=\"img-rounded\" style=\"width: 100%\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n"},{"source":{"id":"17658779-a0e2-45d9-b3b5-44b354891e4b","port":":iip"},"target":{"id":"MlkView","port":"vars"},"metadata":{"title":"MLK :iip -> vars MlkView"},"data":{"title":"MLK FBP"}},{"source":{"id":"17658779-a0e2-45d9-b3b5-44b354891e4b","port":":iip"},"target":{"id":"AudioEl","port":"selector"},"metadata":{"title":"MLK :iip -> selector AudioEl"},"data":"audio"},{"source":{"id":"17658779-a0e2-45d9-b3b5-44b354891e4b","port":":iip"},"target":{"id":"BodyEl","port":"selector"},"metadata":{"title":"MLK :iip -> selector BodyEl"},"data":"body"},{"source":{"id":"17658779-a0e2-45d9-b3b5-44b354891e4b","port":":iip"},"target":{"id":"SpeakingEl","port":"selector"},"metadata":{"title":"MLK :iip -> selector SpeakingEl"},"data":"#mlkSpeaking"}]);
 
 };
 
@@ -16335,4 +16175,4 @@ if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/))
 // as long as this module is loaded.
 module.exports = actor;
 
-},{"chix-flow":"jXAsbI","chix-monitor-npmlog":"HNG52E"}]},{},["jVXMVJ"])
+},{"chix-flow":"jXAsbI"}]},{},["jVXMVJ"])
