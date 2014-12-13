@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "npm": {
-      "hark": "0.x.x"
+      "hark": "1.x.x"
     }
   }
 }
