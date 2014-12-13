@@ -24,10 +24,16 @@
   "devDependencies": {
     "chit": "0.x.x",
     "chix-flow": "^0.10.5",
-    "chix-monitor-npmlog": "0.0.5"
+    "chix-monitor-npmlog": "0.0.5",
+    "handlebars": "^2.0.0"
   },
   "chix": {
     "name": "webrtc",
     "color": "rgb(25,116,136)"
+  },
+  "gh-pages-deploy": {
+    "staticpath": "example",
+    "noprompt": false
   }
+
 }
