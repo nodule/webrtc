@@ -1,0 +1,17 @@
+should be able to embed the example.
+
+the preview will then run within an iframe.
+
+most will just append itself to the body.
+
+examples are just published to gh-pages, so that's what can be included.
+
+the repo itself explains itself, the article itself is the readme?
+
+I want the bare chix-ui to always be shown also.
+The Iframe just runs, that's not the problem.
+The Iframe is also precompiled, it does not load anything dynamic.
+
+If the iframe is included that way, it's not the same origin.
+
+The example itself should already include the bare chix-ui.
