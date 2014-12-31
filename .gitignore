@@ -3,3 +3,4 @@ node_modules
 hark/
 *.swp
 *.txt
+.c9/
