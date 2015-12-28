@@ -14,7 +14,7 @@
   "scripts": {
     "test": "chit -r",
     "deploy": "gh-pages-deploy",
-    "clean-source": "GLOBIGNORE=bundle.js rimraf README.md graphs package.json *.js .x.cache"
+    "clean-source": "rimraf README.md graphs package.json .x.cache"
   },
   "dependencies": {
     "webrtc": "1.11.6",
