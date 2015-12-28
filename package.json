@@ -14,7 +14,7 @@
   "scripts": {
     "test": "chit -r",
     "deploy": "gh-pages-deploy",
-    "clean-source": "rimraf README.md graphs package.json .x.cache"
+    "clean-source": "rimraf README.md graphs package.json nodes example .x.cache"
   },
   "dependencies": {
     "webrtc": "1.11.6",
