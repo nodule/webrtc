@@ -12,7 +12,9 @@
     "node": ">=0.6.0"
   },
   "scripts": {
-    "test": "chit -r"
+    "test": "chit -r",
+    "deploy": "gh-pages-deploy",
+    "clean-source": "rimraf README.md graphs package.json *.js .x.cache"
   },
   "dependencies": {
     "webrtc": "1.11.6",
@@ -24,7 +26,9 @@
     "chit": "0.x.x",
     "chix-flow": "^0.10.5",
     "chix-monitor-npmlog": "0.0.5",
-    "handlebars": "^2.0.0"
+    "gh-pages-deploy": "^0.4.0",
+    "handlebars": "^2.0.0",
+    "rimraf": "^2.5.0"
   },
   "chix": {
     "name": "webrtc",
@@ -32,7 +36,7 @@
   },
   "gh-pages-deploy": {
     "staticpath": "example",
-    "noprompt": false
+    "post": ["clean-source"],
+    "noprompt": true
   }
-
 }
