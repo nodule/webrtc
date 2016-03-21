@@ -1,4 +1,2 @@
 $.webrtc.mute();
-output = {
-  webrtc: $.webrtc
-};
+output = {webrtc: $.get('webrtc')};

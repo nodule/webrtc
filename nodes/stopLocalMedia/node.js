@@ -1,4 +1,2 @@
 $.webrtc.stopLocalMedia();
-output = {
-  webrtc: $.webrtc
-};
+output = {webrtc: $.get('webrtc')};

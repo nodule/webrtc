@@ -1,77 +1,51 @@
 output = function (cb) {
-
   var wrtc = new webrtc(input);
 
   // our direct port.
-  cb({
-    webrtc: wrtc
-  });
+  cb({webrtc: $.create(wrtc)});
 
   // send local stream
   wrtc.on('localStream', function (stream) {
-    cb({
-      localStream: stream
-    });
+    cb({localStream: $.create(stream)});
   });
 
   wrtc.on('localStreamStopped', function () {
-    cb({
-      localStreamStopped: true
-    });
+    cb({localStreamStopped: $.create(true)});
   });
 
   wrtc.on('audioOn', function () {
-    cb({
-      audio: true
-    });
+    cb({audio: $.create(true)});
   });
 
   wrtc.on('audioOff', function () {
-    cb({
-      audio: false
-    });
+    cb({audio: $.create(false)});
   });
 
   wrtc.on('videoOn', function () {
-    cb({
-      video: true
-    });
+    cb({video: $.create(true)});
   });
 
   wrtc.on('videoOff', function () {
-    cb({
-      video: false
-    });
+    cb({video: $.create(false)});
   });
 
   wrtc.on('speaking', function () {
-    cb({
-      speaking: true
-    });
+    cb({speaking: $.create(true)});
   });
 
   wrtc.on('stoppedSpeaking', function () {
-    cb({
-      speaking: false
-    });
+    cb({speaking: $.create(false)});
   });
 
   wrtc.on('message', function (message) {
-    cb({
-      message: message
-    });
+    cb({message: $.create(message)});
   });
 
   wrtc.on('peerStreamAdded', function (peer) {
-    cb({
-      peerStreamAdded: peer
-    });
+    cb({peerStreamAdded: $.create(peer)});
   });
 
   wrtc.on('peerStreamRemoved', function (peer) {
-    cb({
-      peerStreamRemoved: peer
-    });
+    cb({peerStreamRemoved: $.create(peer)});
   });
-
 };

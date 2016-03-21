@@ -1,4 +1,2 @@
 $.webrtc.pauseVideo();
-output = {
-  webrtc: $.webrtc
-};
+output = {webrtc: $.get('webrtc')};

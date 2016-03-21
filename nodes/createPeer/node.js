@@ -1,6 +1,6 @@
-webrtc = $.webrtc;
-delete $.webrtc;
+// webrtc = $.webrtc;
+// delete $.webrtc; why?
 output = {
-  peer: webrtc.createPeer(input),
-  webrtc: webrtc
+  peer: $.create($.webrtc.createPeer({element: $.element, stream: $.stream})),
+  webrtc: $.get('webrtc')
 };

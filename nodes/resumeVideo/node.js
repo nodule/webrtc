@@ -1,4 +1,2 @@
 $.webrtc.resumeVideo();
-output = {
-  webrtc: $.webrtc
-};
+output = {webrtc: $.get('webrtc')};

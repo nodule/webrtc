@@ -1,2 +1,2 @@
 attachmediastream($.element, $.stream)
-output = input
+output = {element: $.get('element'), stream: $.get('stream')} 
