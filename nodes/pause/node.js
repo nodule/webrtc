@@ -1,4 +1,4 @@
-input.webrtc.pause();
+$.webrtc.pause();
 output = {
-  webrtc: input.webrtc
+  webrtc: $.webrtc
 };

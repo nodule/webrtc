@@ -1,14 +1,14 @@
 output = function (cb) {
 
-  var speechEvents = hark(input.stream);
+  var speechEvents = hark($.stream);
 
   cb({
-    stream: input.stream
+    stream: $.stream
   });
 
   speechEvents.on('speaking', function () {
     cb({
-      speaking: input.stream
+      speaking: $.stream
     });
   });
 
@@ -21,7 +21,7 @@ output = function (cb) {
 
   speechEvents.on('stopped_speaking', function () {
     cb({
-      silence: input.stream
+      silence: $.stream
     });
   });
 

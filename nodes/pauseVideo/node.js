@@ -1,4 +1,4 @@
-input.webrtc.pauseVideo();
+$.webrtc.pauseVideo();
 output = {
-  webrtc: input.webrtc
+  webrtc: $.webrtc
 };

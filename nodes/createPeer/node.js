@@ -1,5 +1,5 @@
-webrtc = input.webrtc;
-delete input.webrtc;
+webrtc = $.webrtc;
+delete $.webrtc;
 output = {
   peer: webrtc.createPeer(input),
   webrtc: webrtc

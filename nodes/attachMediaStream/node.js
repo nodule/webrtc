@@ -1,2 +1,2 @@
-attachmediastream(input.element, input.stream)
+attachmediastream($.element, $.stream)
 output = input

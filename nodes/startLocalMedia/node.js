@@ -1,1 +1,1 @@
-output = [input.webrtc, 'startLocalMedia', input.media];
+output = [$.webrtc, 'startLocalMedia', $.media];

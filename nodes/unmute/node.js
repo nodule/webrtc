@@ -1,4 +1,4 @@
-input.webrtc.unmute();
+$.webrtc.unmute();
 output = {
-  webrtc: input.webrtc
+  webrtc: $.webrtc
 };

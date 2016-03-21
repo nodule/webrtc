@@ -1,10 +1,10 @@
 
 output = function (cb) {
 
-  var speachEvents = hark(input.stream);
+  var speachEvents = hark($.stream);
 
   cb({
-    stream: input.stream
+    stream: $.stream
   });
 
   speechEvents.on('speaking', function () {
