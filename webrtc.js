@@ -102,79 +102,79 @@ module.exports = {
       webrtc: require('webrtc')
     }
   },
-  fn: function webrtc(input, output, state, done, cb, on, webrtc) {
+  fn: function webrtc(input, $, output, state, done, cb, on, webrtc) {
     var r = function() {
       var wrtc = new webrtc(input);
 
       // our direct port.
       output({
-        webrtc: wrtc
+        webrtc: $.create(wrtc)
       });
 
       // send local stream
       wrtc.on('localStream', function(stream) {
         output({
-          localStream: stream
+          localStream: $.create(stream)
         });
       });
 
       wrtc.on('localStreamStopped', function() {
         output({
-          localStreamStopped: true
+          localStreamStopped: $.create(true)
         });
       });
 
       wrtc.on('audioOn', function() {
         output({
-          audio: true
+          audio: $.create(true)
         });
       });
 
       wrtc.on('audioOff', function() {
         output({
-          audio: false
+          audio: $.create(false)
         });
       });
 
       wrtc.on('videoOn', function() {
         output({
-          video: true
+          video: $.create(true)
         });
       });
 
       wrtc.on('videoOff', function() {
         output({
-          video: false
+          video: $.create(false)
         });
       });
 
       wrtc.on('speaking', function() {
         output({
-          speaking: true
+          speaking: $.create(true)
         });
       });
 
       wrtc.on('stoppedSpeaking', function() {
         output({
-          speaking: false
+          speaking: $.create(false)
         });
       });
 
       wrtc.on('message', function(message) {
         output({
-          message: message
+          message: $.create(message)
         });
       });
 
       wrtc.on('peerStreamAdded', function(peer) {
         output({
-          peerStreamAdded: peer
+          peerStreamAdded: $.create(peer)
         });
       });
 
       wrtc.on('peerStreamRemoved', function(peer) {
         output({
-          peerStreamRemoved: peer
+          peerStreamRemoved: $.create(peer)
         });
       });
     }.call(this);

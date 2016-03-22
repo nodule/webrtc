@@ -42,30 +42,29 @@ module.exports = {
       hark: require('hark')
     }
   },
-  fn: function hark(input, output, state, done, cb, on, hark) {
+  fn: function hark(input, $, output, state, done, cb, on, hark) {
     var r = function() {
-      var speechEvents = hark(input.stream);
-
+      var speechEvents = hark($.stream);
       output({
-        stream: input.stream
+        stream: $.get('stream')
       });
 
       speechEvents.on('speaking', function() {
         output({
-          speaking: input.stream
+          speaking: $.get('stream')
         });
       });
 
       speechEvents.on('volume_change', function(volume, threshold) {
         output({
-          volume: volume,
-          threshold: threshold
+          volume: $.create(volume),
+          threshold: $.create(threshold)
         });
       });
 
       speechEvents.on('stopped_speaking', function() {
         output({
-          silence: input.stream
+          silence: $.get('stream')
         });
       });
     }.call(this);

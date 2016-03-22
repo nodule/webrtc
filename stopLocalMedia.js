@@ -20,11 +20,11 @@ module.exports = {
       }
     }
   },
-  fn: function stopLocalMedia(input, output, state, done, cb, on) {
+  fn: function stopLocalMedia(input, $, output, state, done, cb, on) {
     var r = function() {
-      input.webrtc.stopLocalMedia();
+      $.webrtc.stopLocalMedia();
       output = {
-        webrtc: input.webrtc
+        webrtc: $.get('webrtc')
       };
     }.call(this);
     return {

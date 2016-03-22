@@ -32,10 +32,13 @@ module.exports = {
       attachmediastream: require('attachmediastream')
     }
   },
-  fn: function attachMediaStream(input, output, state, done, cb, on, attachmediastream) {
+  fn: function attachMediaStream(input, $, output, state, done, cb, on, attachmediastream) {
     var r = function() {
-      attachmediastream(input.element, input.stream)
-      output = input
+      attachmediastream($.element, $.stream)
+      output = {
+        element: $.get('element'),
+        stream: $.get('stream')
+      }
     }.call(this);
     return {
       output: output,

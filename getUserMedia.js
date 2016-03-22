@@ -23,12 +23,12 @@ module.exports = {
       getusermedia: require('getusermedia')
     }
   },
-  fn: function getUserMedia(input, output, state, done, cb, on, getusermedia) {
+  fn: function getUserMedia(input, $, output, state, done, cb, on, getusermedia) {
     var r = function() {
-      var speachEvents = hark(input.stream);
+      var speachEvents = hark($.stream);
 
       output({
-        stream: input.stream
+        stream: $.stream
       });
 
       speechEvents.on('speaking', function() {

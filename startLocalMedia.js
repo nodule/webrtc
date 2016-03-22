@@ -39,9 +39,9 @@ module.exports = {
       }
     }
   },
-  fn: function startLocalMedia(input, output, state, done, cb, on) {
+  fn: function startLocalMedia(input, $, output, state, done, cb, on) {
     var r = function() {
-      input.webrtc.startLocalMedia(input.media, function startLocalMediaCallback(error, stream) {
+      $.webrtc.startLocalMedia($.media, function startLocalMediaCallback(error, stream) {
         cb({
           error: error,
           stream: stream

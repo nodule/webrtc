@@ -20,11 +20,11 @@ module.exports = {
       }
     }
   },
-  fn: function resumeVideo(input, output, state, done, cb, on) {
+  fn: function resumeVideo(input, $, output, state, done, cb, on) {
     var r = function() {
-      input.webrtc.resumeVideo();
+      $.webrtc.resumeVideo();
       output = {
-        webrtc: input.webrtc
+        webrtc: $.get('webrtc')
       };
     }.call(this);
     return {

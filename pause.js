@@ -20,11 +20,11 @@ module.exports = {
       }
     }
   },
-  fn: function pause(input, output, state, done, cb, on) {
+  fn: function pause(input, $, output, state, done, cb, on) {
     var r = function() {
-      input.webrtc.pause();
+      $.webrtc.pause();
       output = {
-        webrtc: input.webrtc
+        webrtc: $.get('webrtc')
       };
     }.call(this);
     return {

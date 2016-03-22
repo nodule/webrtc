@@ -47,7 +47,7 @@
       "description": "AttachMediaStream (microphone, camera)",
       "ns": "webrtc",
       "name": "attachMediaStream",
-      "fn": "attachmediastream(input.element, input.stream)\noutput = input\n"
+      "fn": "attachmediastream($.element, $.stream)\noutput = {element: $.get('element'), stream: $.get('stream')} \n"
     },
     {
       "ports": {
@@ -103,7 +103,7 @@
       "description": "Create Peer",
       "ns": "webrtc",
       "name": "createPeer",
-      "fn": "webrtc = input.webrtc;\ndelete input.webrtc;\noutput = {\n  peer: webrtc.createPeer(input),\n  webrtc: webrtc\n};\n"
+      "fn": "// webrtc = $.webrtc;\n// delete $.webrtc; why?\noutput = {\n  peer: $.create($.webrtc.createPeer({element: $.element, stream: $.stream})),\n  webrtc: $.get('webrtc')\n};\n"
     },
     {
       "dependencies": {
@@ -130,7 +130,7 @@
       "description": "Get User Media (microphone, camera)",
       "ns": "webrtc",
       "name": "getUserMedia",
-      "fn": "\noutput = function (cb) {\n\n  var speachEvents = hark(input.stream);\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
+      "fn": "\noutput = function (cb) {\n\n  var speachEvents = hark($.stream);\n\n  cb({\n    stream: $.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      treshold: treshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n};\n"
     },
     {
       "dependencies": {
@@ -176,7 +176,7 @@
       "description": "Hark",
       "ns": "webrtc",
       "name": "hark",
-      "fn": "output = function (cb) {\n\n  var speechEvents = hark(input.stream);\n\n  cb({\n    stream: input.stream\n  });\n\n  speechEvents.on('speaking', function () {\n    cb({\n      speaking: input.stream\n    });\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({\n      volume: volume,\n      threshold: threshold\n    });\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({\n      silence: input.stream\n    });\n  });\n\n};\n"
+      "fn": "output = function (cb) {\n  var speechEvents = hark($.stream);\n  cb({stream: $.get('stream')});\n\n  speechEvents.on('speaking', function () {\n    cb({speaking: $.get('stream')});\n  });\n\n  speechEvents.on('volume_change', function (volume, threshold) {\n    cb({volume: $.create(volume), threshold: $.create(threshold)});\n  });\n\n  speechEvents.on('stopped_speaking', function () {\n    cb({silence: $.get('stream')});\n  });\n};\n"
     },
     {
       "ports": {
@@ -200,7 +200,7 @@
       "description": "Mute",
       "ns": "webrtc",
       "name": "mute",
-      "fn": "input.webrtc.mute();\noutput = {\n  webrtc: input.webrtc\n};\n"
+      "fn": "$.webrtc.mute();\noutput = {webrtc: $.get('webrtc')};\n"
     },
     {
       "ports": {
@@ -224,7 +224,7 @@
       "description": "Pause",
       "ns": "webrtc",
       "name": "pause",
-      "fn": "input.webrtc.pause();\noutput = {\n  webrtc: input.webrtc\n};\n"
+      "fn": "$.webrtc.pause();\noutput = {webrtc: $.get('webrtc')};\n"
     },
     {
       "ports": {
@@ -248,7 +248,7 @@
       "description": "Pause Video",
       "ns": "webrtc",
       "name": "pauseVideo",
-      "fn": "input.webrtc.pauseVideo();\noutput = {\n  webrtc: input.webrtc\n};\n"
+      "fn": "$.webrtc.pauseVideo();\noutput = {webrtc: $.get('webrtc')};\n"
     },
     {
       "ports": {
@@ -272,7 +272,7 @@
       "description": "Resume",
       "ns": "webrtc",
       "name": "resume",
-      "fn": "input.webrtc.resume();\noutput = {\n  webrtc: input.webrtc\n};\n"
+      "fn": "$.webrtc.resume();\noutput = {webrtc: $.get('webrtc')};\n"
     },
     {
       "ports": {
@@ -296,7 +296,7 @@
       "description": "Resume Video",
       "ns": "webrtc",
       "name": "resumeVideo",
-      "fn": "input.webrtc.resumeVideo();\noutput = {\n  webrtc: input.webrtc\n};\n"
+      "fn": "$.webrtc.resumeVideo();\noutput = {webrtc: $.get('webrtc')};\n"
     },
     {
       "ports": {
@@ -339,7 +339,7 @@
       "description": "Start Local Media",
       "ns": "webrtc",
       "name": "startLocalMedia",
-      "fn": "output = [input.webrtc, 'startLocalMedia', input.media];\n"
+      "fn": "output = [$.webrtc, 'startLocalMedia', $.media];\n"
     },
     {
       "ports": {
@@ -363,7 +363,7 @@
       "description": "Stop Local Media",
       "ns": "webrtc",
       "name": "stopLocalMedia",
-      "fn": "input.webrtc.stopLocalMedia();\noutput = {\n  webrtc: input.webrtc\n};\n"
+      "fn": "$.webrtc.stopLocalMedia();\noutput = {webrtc: $.get('webrtc')};\n"
     },
     {
       "ports": {
@@ -387,7 +387,7 @@
       "description": "Unmute",
       "ns": "webrtc",
       "name": "unmute",
-      "fn": "input.webrtc.unmute();\noutput = {\n  webrtc: input.webrtc\n};\n"
+      "fn": "$.webrtc.unmute();\noutput = {webrtc: $.get('webrtc')};\n"
     },
     {
       "dependencies": {
@@ -493,7 +493,7 @@
       "description": "WebRTC",
       "ns": "webrtc",
       "name": "webrtc",
-      "fn": "output = function (cb) {\n\n  var wrtc = new webrtc(input);\n\n  // our direct port.\n  cb({\n    webrtc: wrtc\n  });\n\n  // send local stream\n  wrtc.on('localStream', function (stream) {\n    cb({\n      localStream: stream\n    });\n  });\n\n  wrtc.on('localStreamStopped', function () {\n    cb({\n      localStreamStopped: true\n    });\n  });\n\n  wrtc.on('audioOn', function () {\n    cb({\n      audio: true\n    });\n  });\n\n  wrtc.on('audioOff', function () {\n    cb({\n      audio: false\n    });\n  });\n\n  wrtc.on('videoOn', function () {\n    cb({\n      video: true\n    });\n  });\n\n  wrtc.on('videoOff', function () {\n    cb({\n      video: false\n    });\n  });\n\n  wrtc.on('speaking', function () {\n    cb({\n      speaking: true\n    });\n  });\n\n  wrtc.on('stoppedSpeaking', function () {\n    cb({\n      speaking: false\n    });\n  });\n\n  wrtc.on('message', function (message) {\n    cb({\n      message: message\n    });\n  });\n\n  wrtc.on('peerStreamAdded', function (peer) {\n    cb({\n      peerStreamAdded: peer\n    });\n  });\n\n  wrtc.on('peerStreamRemoved', function (peer) {\n    cb({\n      peerStreamRemoved: peer\n    });\n  });\n\n};\n"
+      "fn": "output = function (cb) {\n  var wrtc = new webrtc(input);\n\n  // our direct port.\n  cb({webrtc: $.create(wrtc)});\n\n  // send local stream\n  wrtc.on('localStream', function (stream) {\n    cb({localStream: $.create(stream)});\n  });\n\n  wrtc.on('localStreamStopped', function () {\n    cb({localStreamStopped: $.create(true)});\n  });\n\n  wrtc.on('audioOn', function () {\n    cb({audio: $.create(true)});\n  });\n\n  wrtc.on('audioOff', function () {\n    cb({audio: $.create(false)});\n  });\n\n  wrtc.on('videoOn', function () {\n    cb({video: $.create(true)});\n  });\n\n  wrtc.on('videoOff', function () {\n    cb({video: $.create(false)});\n  });\n\n  wrtc.on('speaking', function () {\n    cb({speaking: $.create(true)});\n  });\n\n  wrtc.on('stoppedSpeaking', function () {\n    cb({speaking: $.create(false)});\n  });\n\n  wrtc.on('message', function (message) {\n    cb({message: $.create(message)});\n  });\n\n  wrtc.on('peerStreamAdded', function (peer) {\n    cb({peerStreamAdded: $.create(peer)});\n  });\n\n  wrtc.on('peerStreamRemoved', function (peer) {\n    cb({peerStreamRemoved: $.create(peer)});\n  });\n};\n"
     }
   ],
   "twigs": []

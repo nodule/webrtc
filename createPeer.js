@@ -51,13 +51,16 @@ module.exports = {
       }
     }
   },
-  fn: function createPeer(input, output, state, done, cb, on) {
+  fn: function createPeer(input, $, output, state, done, cb, on) {
     var r = function() {
-      webrtc = input.webrtc;
-      delete input.webrtc;
+      // webrtc = $.webrtc;
+      // delete $.webrtc; why?
       output = {
-        peer: webrtc.createPeer(input),
-        webrtc: webrtc
+        peer: $.create($.webrtc.createPeer({
+          element: $.element,
+          stream: $.stream
+        })),
+        webrtc: $.get('webrtc')
       };
     }.call(this);
     return {
